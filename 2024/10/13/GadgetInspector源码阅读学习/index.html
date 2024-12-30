@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="en" data-default-color-scheme=auto>
+<html lang="zh" data-default-color-scheme=auto>
 
 
 
@@ -13,16 +13,16 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="author" content="John Doe">
+  <meta name="author" content="zhattatey">
   <meta name="keywords" content="">
   
     <meta name="description" content="学习下SAST的内容，先从GadgetInspector开始。 涉及到大量asm和java字节操作码的知识，有点困难，日后还是要系统学下好。 文章参考： https:&#x2F;&#x2F;xz.aliyun.com&#x2F;t&#x2F;7058 https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1683&#x2F; 网上很多文章感觉讲的很明白了，这里记录下核心逻辑的笔记。 局部污点分析逆拓扑排序首先要了解逆拓扑排序，例如一个有向无环图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="GadgetInspector源码阅读学习">
 <meta property="og:url" content="http://example.com/2024/10/13/GadgetInspector%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E5%AD%A6%E4%B9%A0/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:site_name" content="zhattatey&#39;s blog">
 <meta property="og:description" content="学习下SAST的内容，先从GadgetInspector开始。 涉及到大量asm和java字节操作码的知识，有点困难，日后还是要系统学下好。 文章参考： https:&#x2F;&#x2F;xz.aliyun.com&#x2F;t&#x2F;7058 https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1683&#x2F; 网上很多文章感觉讲的很明白了，这里记录下核心逻辑的笔记。 局部污点分析逆拓扑排序首先要了解逆拓扑排序，例如一个有向无环图">
-<meta property="og:locale" content="en_US">
+<meta property="og:locale">
 <meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728813119732.png">
 <meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728813728064.png">
 <meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728814179298.png">
@@ -42,14 +42,14 @@
 <meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728873588076.png">
 <meta property="article:published_time" content="2024-10-13T09:13:27.000Z">
 <meta property="article:modified_time" content="2024-10-14T02:54:58.721Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="zhattatey">
 <meta property="article:tag" content="SAST">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/GadgetInspector/QQ_1728813119732.png">
   
   
   
-  <title>GadgetInspector源码阅读学习 - Hexo</title>
+  <title>GadgetInspector源码阅读学习 - zhattatey&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -133,7 +133,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                <span>Home</span>
+                <span>Startseite</span>
               </a>
             </li>
           
@@ -145,7 +145,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                <span>Archives</span>
+                <span>Archiv</span>
               </a>
             </li>
           
@@ -157,7 +157,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/categories/" target="_self">
                 <i class="iconfont icon-category-fill"></i>
-                <span>Categories</span>
+                <span>Kategorien</span>
               </a>
             </li>
           
@@ -169,7 +169,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                <span>Tags</span>
+                <span>Schlagwörter</span>
               </a>
             </li>
           
@@ -181,7 +181,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                <span>About</span>
+                <span>Über</span>
               </a>
             </li>
           
@@ -238,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.5k words
+          1.5k wörter
         
       </span>
     
@@ -249,7 +249,7 @@
         
         
         
-          13 mins
+          13 minuten
         
       </span>
     
@@ -413,20 +413,20 @@
     <div class="license-meta">
       
         <div class="license-meta-item">
-          <div>Author</div>
-          <div>John Doe</div>
+          <div>Beitragsautor</div>
+          <div>zhattatey</div>
         </div>
       
       
         <div class="license-meta-item license-meta-date">
-          <div>Posted on</div>
+          <div>Veröffentlicht am</div>
           <div>October 13, 2024</div>
         </div>
       
       
       
         <div class="license-meta-item">
-          <div>Licensed under</div>
+          <div>Urheberrechtshinweis</div>
           <div>
             
               
@@ -455,7 +455,7 @@
                       <a href="/2024/10/15/GadgetInspector%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="GadgetInspector优化学习">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">GadgetInspector优化学习</span>
-                        <span class="visible-mobile">Previous</span>
+                        <span class="visible-mobile">Vorheriger</span>
                       </a>
                     
                   </article>
@@ -464,7 +464,7 @@
                     
                       <a href="/2024/08/19/OpenMetaData-CVE-2024-28848-%E6%9D%83%E9%99%90%E7%BB%95%E8%BF%87%E5%8F%8ARCE/" title="OpenMetaData-CVE-2024-28848-权限绕过及RCE">
                         <span class="hidden-mobile">OpenMetaData-CVE-2024-28848-权限绕过及RCE</span>
-                        <span class="visible-mobile">Next</span>
+                        <span class="visible-mobile">Nächster</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
                     
@@ -485,7 +485,7 @@
     <div id="toc">
   <p class="toc-header">
     <i class="iconfont icon-list"></i>
-    <span>Table of Contents</span>
+    <span>Inhaltsverzeichnis</span>
   </p>
   <div class="toc-body" id="toc-body"></div>
 </div>
@@ -541,7 +541,7 @@
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
         <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -549,7 +549,7 @@
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+          <label data-error="x" data-success="v" for="local-search-input">Stichwort</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
@@ -728,7 +728,7 @@
   
 
   <noscript>
-    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+    <div class="noscript-warning">Blog funktioniert am besten mit aktiviertem JavaScript</div>
   </noscript>
 </body>
 </html>
