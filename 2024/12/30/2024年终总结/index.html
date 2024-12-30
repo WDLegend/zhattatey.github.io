@@ -1,0 +1,695 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="今年学到了非常多的东西，相比之下，技术上的进步反而显得微不足道，对于心灵方面的思考才是最重要的。受益于终生。所以我把技术的进步放在了后面，前面写一些其他的。 本篇文章大量充斥个人观点，不适用所有人，且必然有谬误，纯当参考。 想到啥就写啥，会很乱，也是随便写。如果您看了觉得有收获，那就再好不过了。 傻逼论人生是一个不断发现自己是傻逼的过程，判断自己是否成长的方式，是看自己是否频繁认为自己是傻逼。频率">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2024年终总结">
+<meta property="og:url" content="http://example.com/2024/12/30/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="今年学到了非常多的东西，相比之下，技术上的进步反而显得微不足道，对于心灵方面的思考才是最重要的。受益于终生。所以我把技术的进步放在了后面，前面写一些其他的。 本篇文章大量充斥个人观点，不适用所有人，且必然有谬误，纯当参考。 想到啥就写啥，会很乱，也是随便写。如果您看了觉得有收获，那就再好不过了。 傻逼论人生是一个不断发现自己是傻逼的过程，判断自己是否成长的方式，是看自己是否频繁认为自己是傻逼。频率">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/zookeeper-authentication-bypass/image-20241230212433046.png">
+<meta property="article:published_time" content="2024-12-30T13:23:45.000Z">
+<meta property="article:modified_time" content="2024-12-30T14:39:08.759Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="life &amp; thinking">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/zookeeper-authentication-bypass/image-20241230212433046.png">
+  
+  
+  
+  <title>2024年终总结 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2024年终总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-30 21:23" pubdate>
+          December 30, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.6k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          64 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">2024年终总结</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>今年学到了非常多的东西，相比之下，技术上的进步反而显得微不足道，对于心灵方面的思考才是最重要的。受益于终生。<br>所以我把技术的进步放在了后面，前面写一些其他的。</p>
+<p>本篇文章大量充斥个人观点，不适用所有人，且必然有谬误，纯当参考。</p>
+<p>想到啥就写啥，会很乱，也是随便写。如果您看了觉得有收获，那就再好不过了。</p>
+<h1 id="傻逼论"><a href="#傻逼论" class="headerlink" title="傻逼论"></a>傻逼论</h1><p>人生是一个不断发现自己是傻逼的过程，判断自己是否成长的方式，是看自己是否频繁认为自己是傻逼。频率越高，成长越快。<br>譬如我看我去年写的年终总结，就在看一个傻逼。</p>
+<p>分为被动发现自己傻逼，主动寻找傻逼之处和不承认是傻逼。<br>不承认是傻逼必然会导致心理疾病，呈现出巨婴的表现，此类人群是真傻逼，生活中要极度远离。<br>被动发现自己傻逼，是正常人的常态，一般以年为单位，比如初中了发现小学发的QQ空间很弱智。<br>主动寻找傻逼之处是略少数人会做的事，这意味着要克服人回避痛苦的天性。<br>在中学时代，发现自己是傻逼，是以一年一次为单位的，在大一，大二初的时候，是以半年为单位的，而在今年看了很多书后，是以月为单位的。</p>
+<p>发现自己是傻逼是很有意义的一件事，如果说某一年内没有找到自己的傻逼事，说明今年在个人成长方面毫无进步，值得警惕。</p>
+<p>发现自己是傻逼并不意味着批判和自责，这样只会陷入内耗的恶循环。知道傻逼论的含义后，发现自己是傻逼就是一件高兴的事了。是渴望自己不再傻逼的心理，并非苛责了。</p>
+<h1 id="看书"><a href="#看书" class="headerlink" title="看书"></a>看书</h1><p>我过去总对看书有一种偏见，小学中学时期学校让读的书，都是一些故事性的书，文学类的书，一没兴趣，二是认识局限，看了也看不出什么东西。有这个时间，我咋不去打游戏？<br>且我总是想自己原创性的思考一些结论，同时，潜意识总觉得，看一本书，就必须有相应的收获——正反馈必须给足了，否则不太想去看。这本质上就是一种幻想，阻碍了个人成长。就如学习安全领域，没人会一直带你，真正的大佬都是自学，没人会追着喂给你知识。而在自学的过程中就会有大量试错。</p>
+<p>市面上有大量的垃圾书，什么速成xxx，xxx教你xxx，xx心理学，这类基本都是垃圾。其次是文学性强的书，政治正确的书，我觉得很没意思，而中学时代的必读书目有很多这些书，这也导致了我过往的偏见，我非常不爱看这些。</p>
+<p>再有是讲故事类型的书，很可惜我也没怎么看过，如果未来有时间可以读一读。</p>
+<p>最后就是各种学科领域的书，这些才是人类智慧的精华，可以说，在今年读这些书直接改变了我的思维方式，间接的，未来必然会影响我的人生。</p>
+<p>一本好书凝聚了作者一生的思考精华，在看的过程中，我发现我日常所做的思考，会与作者的观点重合，大部分情况下，作者的表述更全面，更准确。世界上你从未遇见过的，毫不相干的一群人可以和你想到一块去，他们甚至有些死了几百年了。每次读到这些章节，都会感觉奇妙无比。</p>
+<p>如果读了很多书，发现没有任何变化，此时读书和刷抖音，看视频一样，成了不断强化自己局限认知的手段，或者只是单纯的用来娱乐。就譬如我在中学时代看一些名著，基本也是讲故事类型的，由于认知太局限，看也看不太懂，但是挑中了其中讲的一些观点，就在现实胡乱套用，实际上根本不适用。根本没有经过严密的思考和痛苦的反省。这样读书等于浪费时间，确实不如玩两把游戏带来的快乐实在。</p>
+<p>水浒传算是我唯一看过的四大名著了，仔细想想当初到底看出了个什么滋味呢？没有。现在回忆一些所谓梁山好汉，简直就像是一群暴徒，死有余辜的东西。对于当时年幼的我来说，自然而然认为书里的主人公就应当是正义的，但总觉得别扭，事实上是这本书更多是在写一些现实的黑暗，关于社会的悲剧。<br>想了想当时考试中的内容，也是赞扬颇多，专门挑好的说，真实的情况也刻意忽略。所以我总有种被愚弄之感，被当成蠢货糊弄的感觉，不得不引申出我对上学的思考。</p>
+<h1 id="关于上学"><a href="#关于上学" class="headerlink" title="关于上学"></a>关于上学</h1><p>在暑假时候去北京实习了，遇到了一件印象深刻的事。<br>租房的中介是一个比我大两岁的小哥，他初中没上完，来北京当销售了。<br>当时带我看房子，开的是宝马，车载音响放着自己的歌，吹着空调来到了住的地方，最后收钱直接收了我一个月的房租价格的中介费——两千一百。<br>他说这是他今天的第四单，此时正值下午两三点，可以想到，后面还会有几单。也就是说，他今天一天就可以挣上万。<br>我问了他的生意，他说6789月，毕业季高峰期，这几个月老赚了。</p>
+<p>如果这样推算，想来这个宝马应该也是他的，估计也几十万了，也就比我大两岁而已，但已经积累相对可观的财富了，我不得不去思考，上学的意义是什么？<br>我又回忆起了我初中时期的一个同学，这位同学基本也不学习，每天就是玩，最后这位同学自然也没考上高中，只记得当时我升入高中后，听闻他去北京做销售，第一个月就挣了一万多。</p>
+<p>当然，这些人可以挣这么多，是因为他们口才很好，性格很外向，会说话。但我总是会想起这件事，不由得感慨：我上这么多年学的意义在哪？</p>
+<p>后来我明白了：上学是对自身的投资，而且是保守的投资，是一种相对来说，低风险，低回报的投资。就如同股票和债券的区别。</p>
+<p>可以不上学，前提是你懂自己要做什么，极其牛逼的人，他们甚至不需要读大学（比如乔布斯，比尔盖茨），因为他们知道上大学，对自己是负收益，会降低自己的上限。</p>
+<p>经此一事彻底打消了我读研的念头，读研读博，把人生最宝贵，最有精神的青年时代放在这方面，很明显，极大的提高了下限，但相应的，也降低了自己的上限。做的是低风险，低收益的投资。<br>竞争环境如此激烈，还能考上不错的学校的，或保研的，那一定很厉害了，我要是有这么够的专注力和精力，为什么不去社会折腾呢？<br>我并没有学术理想，做研究也不是我所热爱的事，而且我也没有深造的想法（我更想在工作中深化我的技能），所以我断然不会再去做提学历这件事。</p>
+<p>我们从小就被灌输了观点——要读圣贤书。这句话本来就充满了极大的疑问：什么是圣贤书？怎么定义的？上学就是读圣贤书吗？</p>
+<p>很显然，上学和读书不是必然关系，学校里教的是最基础的知识，玩的是智力竞赛，但如逻辑学（思考逻辑），心理学（调整自身生活，认识自己），经济学（理解世界的运转），政治学等等等等，真正有益的知识，会教你吗？也会教，但也很浅，不作考核。或者，把知识阉割掉，再教给你，还分辨不出来对错了。</p>
+<p>试问所谓的大学课程，水课有多少？课不水，老师水平低的有多少？老师水平高，又愿意好好教学的有多少？<br>所谓公选课，选修课，学生们真正感兴趣的有多少？选到了感兴趣的，为了迎合学生考试，分数，教的又是浅之又浅，严肃性甚低，一学期所教内容甚至不如看本书来得快。<br>所谓的大学比赛，ppt，演讲，论文，一套接一套，含金量在哪里？一个人卷，大家都得跟着被迫卷，请问这种加分制度有必要么？跟个好爹导师，使用学长历年传承项目，某些人甚至代码都不改几行，官方文档都读不懂，靠精美的ppt省奖国奖拿到手软，这种比赛很有必要么？<br>我虽没搞过学术，但在知乎看，或听朋友说，国内学术造假，伪造数据之流是有一定数目的，那些真正想做研究，但天资并不太聪颖的人，是否就这样被挤下去了呢？</p>
+<p>水课水老师出来水学生，研究生博士尚且如此，本科更不必说了，这难道就是教育公平么？如此过度追求所谓公平，请问效率哪去了？这就是我们学生想要的么？</p>
+<p>上了这么多年学，还是要自学占的多，试问那些牛逼的学生，哪个是乖乖地跟着学校学的呢？</p>
+<p>从社会的角度看，这又是一个全国范围内的囚徒困境，每个人都为了追求更好的未来的可能性，拼命地挤独木桥，从而让应试蔓延到了大学。而那些真正想做研究的，对科研有热衷和兴趣的人呢？恐怕有不少被筛掉了吧。面对这样的囚徒困境，发展成如今这样是必然的。事实上是全世界范围内都如此，只是严重程度不同罢了。</p>
+<p>另一件很显然的事，上学不指望老师来指点（特别指未来人生的道路选择）。且不说人生不可能直接吸收他人的二手知识，大部分学生我想最终还是进入社会的，有些老师在象牙塔内混学术圈，或者行政混的很好，不过是早生几十年，命好而已，提前占了坑位罢了，放到现在能有这样？<br>某些所谓的教授，写的教材晦涩难懂，感觉纯纯像是刷头衔刷荣誉写的玩意，还他妈给学生看，那么简单的东西拐来拐去一堆定义，说都说不明白，写你妈呢？随便到youtube找个国外课程讲的都比那些废话清楚100倍。</p>
+<p>换句话说，老师的主要利益是科研，而非教学，是写出教材拿头衔，而非让你看懂。本质上，是学生和老师的利益不在一块。</p>
+<p>所以，借用盛京剑客（某网络博主）的话：“中国的教育本质上是智商的逆向筛选教育，谁信谁就输了。最聪明的，会装作信，忽悠别人，最傻的，要真心为万世开太平了，为集体奉献一切了。最后混的最好的往往是学霸和学渣，为什么啊？因为他们都不信啊！”</p>
+<p>推而广之，说是教育，不如说是考试筛选，中考高考，公务员考，研究生考，CTF比赛也可看做智力竞赛的考，貌似中国人的前半生就活在考内了。考完便是996，再来点职场勾心斗角，再卷考核成绩，这还不论结婚生子，奉献个几十年，这么活着有什么意思呢？<br>诚然，考试是一种快速高效的筛选手段，但如此内卷，对于被筛选者已然成了极大负担，如果我的前半生活在考里，中半生活在卷里，后半生活在病里，这么赖活着有意思吗？</p>
+<p>回想中学6年，除去同学老师朝夕相处的真情外，剩下的不由得感觉是占据了自己人生的垃圾时间，但若无这些垃圾时间，也必然催生不出我此刻的想法。正所谓先吃过屎再说屎难吃，也没人告诉我怎么才能再也不吃屎，只能靠自己悟得了，只希望未来可以多拥有属于自己的时间，哪怕随意挥霍浪费，也是心情舒畅的，而不是持续吃屎了。</p>
+<p><img src="/../zookeeper-authentication-bypass/image-20241230212433046.png" srcset="/img/loading.gif" lazyload alt="image-20241230212433046"></p>
+<h1 id="关于评价体系"><a href="#关于评价体系" class="headerlink" title="关于评价体系"></a>关于评价体系</h1><p>今年悟到的最重要的道理就是，有自己的评价体系。我在之前的文章里多次写到，但我还想写一些。</p>
+<p>前提是需要思考，而且必须是尊重现实的思考。一个反例就是阿Q。很明显，阿Q是活在自己精神世界的人，他确实建立了自己的评价体系，但没有尊重现实。活在自己的想象里。</p>
+<p>这样的评价体系，就成了用于逃避现实的工具，久而久之必然会导致心理疾病。</p>
+<p>为什么说真正的思考是痛苦的？真正的思考要尊重现实，而尊重现实最难的一点在于直击自己的自恋——这是很多人无法忍受的。<br>荣格说， 一个人毕其一生的努力就是在整合他自童年时代起就已形成的性格。这其中最难的部分，就是直面自己的内心的阴影。阴影的形成，又和童年时代起的经历息息相关。</p>
+<p>在我个人看来，相当多的人活的痛苦，活的焦虑，难以尊重现实，并非单纯是自己悟性不够，智商太低，另一个因素是其内心的阴影过于巨大，难以面对和接纳。<br>有些人接纳和整合自己犹如搬一块石头，费点力气就能做到，有些人则像是愚公移山一样，长年累月都难以彻底改变。</p>
+<p>除了吃不饱穿不暖，生大病这种物理上的疼痛，一切的焦虑，紧张，痛苦都是来自于心灵上的，而心灵上的痛苦来自于你的观念，观念的塑造来自于社会公认的评价体系。比如说，突然发现过去的老同学，身边的同龄人很优秀，重的便感觉痛苦窒息了，轻的就感觉焦虑紧张了；比如停下来一段时间后，就觉得焦虑不安，难以安心休息，仿佛非得做些什么事情才能够心安；比如说，想到父母了，就觉得不应该让父母失望，要满足他们的期待了。然而期待是怎样的呢？是希望儿女有出息，为了自己的面子而期待呢？还是希望儿女身体健康，幸福美满而期待呢？还是杂合在一起的呢？不得而知了，总之就要努力为别人而活了；比如说，看到周围人都结婚生子，买房买车了，就感到落后他人了；于是，我就要穷追不舍了，拼命去努力了。说是要为自己而活，本质上还是为别人而活，活在别人的眼光里。</p>
+<p>道理很易懂，但确实难以做到，我想其中必然有更深层次的原因。</p>
+<p>中国目前是太平盛世，绝大部分人可以吃饱穿暖，有钱看病，保障自身安全，说实话，说这是最好的时代也不为过。至于怎么活，全看自己。</p>
+<h1 id="文科和理科"><a href="#文科和理科" class="headerlink" title="文科和理科"></a>文科和理科</h1><p>我在中学时代总有种偏见，理科是至高无上的，改变世界的，文科是没用的，死记硬背的。即使不是，也是八股文一样，要迎合出题人的思路来答题（某种程度上来说确实如此，学生想要写自己与众不同的想法不太可能）。<br>智商是最重要的，一个高智商的人，必定是令人羡慕的，高智商且学习好的人，那以后大概率也是成功的人。<br>我们应该在什么年纪就做什么样的事，什么时候就该做什么。<br>认为科学能够改变世界，什么事，都可以用科学研究。</p>
+<p>这些都是学生思维，如果符合这些观念，在应试教育的丛林法则下，可以过的很好。在上了大学后，我发现这些都是狗屎，严重阻碍我的进步。</p>
+<p>大学期间，我发现我反而愿意主动学习文科，社科方面的内容。对世界而言，理科工科是推动科技进步，生产力发展的基石。对个人而言，文科社科类方面的知识和思考更重要一些。换句话说，技术什么时候都可以学，认知的增长则不是了。</p>
+<h1 id="攻击性分析"><a href="#攻击性分析" class="headerlink" title="攻击性分析"></a>攻击性分析</h1><p>写了这么多发现，我今年一个很大的变化在于释放了攻击性，比如上述行文中，相对于去年年终总结的唯唯诺诺，言语措辞激烈的就很多了，这和我之前是完全不同的。事实上我在过去的生活中，扮演的角色偏向于老好人。尤其是在熟悉的人面前，不对任何人释放攻击性，且过度为他人着想。</p>
+<p>所以从精神分析的角度看这个是什么呢？仍然是一种自恋的表现，压抑自己的攻击性去扮演一个老好人形象，这其实携带着一个信号：”我的话是重要的，会伤到别人的。我是特别的“。</p>
+<p>这其实和过度自卑的人是一个道理，一些人在出了不好的事后，总喜欢把错误归结到自己身上，比如张三和李四同学间闹矛盾，事后和好后，张三总是在责怪自己，认为发生矛盾的原因都是自己造成的，和李四没有一点关系或者很少。这个想法就携带着一个信号：”我是特别的，我的影响是最重要的“。这本质上也是过度自恋的表现，与完全不认为自己有问题的人一样，都是自恋的一体两面。只不过从结果来看，一个是摧毁自己，另一个是摧毁他人。</p>
+<p>另外，释放攻击性往往携带着愤怒，而愤怒这种情绪代表着什么呢？愤怒是为了保护自己而产生的。比如人在极度恐惧的情况下，就会催生出愤怒，愤怒是用来保护自己的。比如有些巨婴听不得半点坏话，甚至于不同于自己观念的，此时产生的愤怒就是为了保护巨婴的全能自恋。比如恋爱方的女性常常愤怒，因为女性往往在弱势方而无安全感，就要发生愤怒来保护自己了。</p>
+<p>为什么一些人基本不愤怒？因为其内核稳定。换而言之，他们不会臆想某个人要对自己产生恶意了，也不会因为一些垃圾事觉得自己受到侵害了。这是内心强大的表现，也是全能自恋程度低的表现。能做到极致的，古往今来者，都是圣人了。<br>但也并非完全不愤怒，彻底压抑则会变成”老好人“，麻木的人，像傀儡一样的人。而是合理释放攻击性。</p>
+<p>所以，情绪不稳定的，爱发脾气的人，本质上都是脆弱的人。区别在于他们把攻击性释放到外面。另一类人是“老好人”的倾向，比如像我这样的，不敢于释放攻击性，喜欢将错误过度归因于自己的。本质上，这些都是巨婴的表现。那么什么是巨婴呢？</p>
+<ol>
+<li>我是神，世界的一切运行都要按照我的意志进行</li>
+<li>如若不然，就由神变为魔，欲要摧毁这个世界</li>
+<li>发现2无法达成，就转变为攻击自己，造成抑郁<br>所以，只有婴儿认为世界应该按照自己的意志运转的，婴儿也缺乏尊重现实的能力。</li>
+</ol>
+<p>当然，现实情况是很复杂的，一个人同时有这两种特征也是可能的。比如一个人不敢攻击别人，遇到事就攻击自己生闷气，但在谈恋爱的过程中会狠狠攻击另一方。一旦另一方还击，就又会陷入弱势，从而无限攻击自己。比如一些男性在家外面唯唯诺诺，回到家里就大发脾气，攻击弱势的妻子儿女。</p>
+<p>这两种特征的人群往往又对应焦虑性依恋和回避性依恋的人，而二者又相互吸引，相互绞杀。回避型依恋自幼缺少强烈感情的爱，便会错认焦虑型人格的强烈情绪为爱，于是深深被焦虑型人格吸引。而由于其年幼或遭忽视，或父母不善于表达，故情感表达能力低下（如羞于表达，恐惧表达，或麻木自身情绪等）。<br>焦虑型依恋自幼缺乏安全感，原因也来自于父母的相处模式，如忽冷忽热，情绪阴晴不定，长大后非常喜欢表现自己，从而吸引回避型，回避型人格外在的冷漠，独立，带来的稳重感就是一块稳定的基石，而给予焦虑型安全感。一旦爆发冲突，焦虑型急需爱的证明来索取安全感，衍生极端自恋的暴怒情绪，让回避型心生恐惧，逃避冲突，此举又会使焦虑型更为焦虑，二者相互绞杀，直到一方筋疲力竭，关系结束。</p>
+<p>当然，现实情况必然是复杂的，无论如何，本质上都是全能自恋，而全能自恋的形成，则是幼年缺爱导致的。</p>
+<p>到底什么是爱呢？我很爱我的宠物猫，但是为了让他以后不发情，我对他做了绝育手术。<br>这不叫爱，这是宠物和主人的关系不平等，主人嫌麻烦，直接剥夺了宠物的生育能力。</p>
+<p>主人和宠物的关系可以代换到父母和孩子身上，父母严加管教孩子，这不让做那不让做，这也不叫爱，是一种自由的剥夺。父母要求孩子走他们的安排好的路，不过问孩子是否愿意，这也不叫爱。父母不理解孩子，只觉得自己提供物质就好了，而忽略孩子真实的想法和感受，这也不叫爱。这些看似是爱的行为，都不是真正的爱。<br>我们国家很讲集体主义，所以父母八成都给孩子提供自己能做到最好的物质资源，但我想很多时候，并没有那么多爱。</p>
+<p>没有真正的理解，没有当做完整的人的尊重，没有适度的自由，但也并非无爱，太多受到伤害的人无法把愤怒扔给父母，那么此时就只能攻击自己了，抑郁者是非常多的，麻木也是非常严重的。</p>
+<p>为什么会这样呢？则是因为父母的幼年也缺爱。所以，巨婴性格会一代传一代，代代相传。除非有一代人或意识到，或被治愈，不然会一直传下去。而且，缺不缺爱和财富多少，权力大小，社会地位高低，能力天赋等，并无必然关系，是一种普遍存在于人类身上的现象。</p>
+<h1 id="技术进步"><a href="#技术进步" class="headerlink" title="技术进步"></a>技术进步</h1><p>刚开始按时间记录，流水账的写了一通，发现不妥，删了重写。<br>年初这会，学校管理层不知是有利益纷争还是如何，这帮人做的什么几把决策，直接给学弟搞断代，一来一回，本来CTF实力就弱，这么一搞，青黄不接，再加上我对国内某些CTF比赛实在不敢恭维，卷的毫无意义，为了出题而出题，比赛结束后，根本没复现的欲望。</p>
+<p>所以后来就直接弃了CTF了，专注做自己的事好了。一没资源，二没氛围，我实在找不下打下去的理由，当然，话虽如此说，还是复现了相当多非常优秀的大型CTF比赛赛题，这对我的学习起了非常大的帮助，给我打下了一个坚定的基础。</p>
+<p>然后就是不断地复现漏洞，看漏洞，到暑假尝试找个实习。因为春招没找，渗透，安服这类又不想干，就想找个安全研究相关的，还是有点忐忑的，兢兢业业投了十几家。</p>
+<p>最后去了华云安，周五，第一天投，下午就面试，然后周一直接就通过，速度极快，我也是直接签合同，后面好几家甚至都没面试。</p>
+<p>在北京实习的三个月，是我大学度过的最幸福的三个月，挣多少花多少，当真是无忧无虑，虽然在北京，实习公司也就勉强够糊口，但我觉得自己掌控的生活，是最为幸福的，是其他任何情况都无法代替的。</p>
+<p>开学后长期不在，被学校抓回去了，不过好在我当时已经实习结束了，最后给了个警告处分，不了了之。不得不感慨，落后的管理制度，平庸化学生的考核标准，怪不得这学校年年退步呢，而管理层始终认为自己对。你说兢兢业业吧，作为管理层的工作确实干的很好，但为什么这么干呢？没有自己的想法，也就是不停地执行命令，维护自己的利益。这些垃圾政策在若干年后自然有垃圾后果，不过这和我没有任何关系了。</p>
+<p>说今年有什么进步呢？相比于去年学的杂七杂八，今年就是纯粹的专注代码审计，成果里有幸挖到两大厂CVE，暑期去了实习，见了世面，同时也算是有始有终完成了一个项目，花了一个多月完成了个go的SAST。其实细看来，成果也就那点。</p>
+<p>想了想我对技术的态度，究竟是如何的呢？</p>
+<p>其实我并非对计算机感兴趣，我只是对网络攻防感兴趣，或者说我对攻击和防御技术感兴趣。所以学了一遍又一遍的汇编，从来没有记住过，反而是最近学习安卓逆向的时候，动手操作了一遍，那几个指令就刻在了脑海里。<br>学校只是一味地授课，教学，其实我对计算机底层原理确实不感兴趣，也对CPU的组成没啥想法，更不想了解各种数学。我只是单纯的对攻击技术，防御技术有兴趣，为了学习更多更牛逼的技术，我才会去了解相关知识，否则除了因为好奇，我根本没有看的欲望，这种教学是否是一种本末倒置呢？<br>我对攻击的漏洞有兴趣，故学习挖掘，难度越来越大，越来越高，后来我对如何挖掘有兴趣，故阅读一些工具源码，最后我想自己试试，故自己动手写代码，测试。而全程见不得多少计算机的影子，换句话说，这些计算机知识只是完成我想法的工具，是为了我的想法而服务的，而不是相反。</p>
+<p>我想我就是离经叛道的一类人，学校不适合我，早早脱出是好事。而我只是个单纯对技术感兴趣的人罢了。</p>
+<h1 id="最后总结"><a href="#最后总结" class="headerlink" title="最后总结"></a>最后总结</h1><p>回顾我今年的生活后，发现其实我每天的生活很平淡枯燥，不是写代码，就是看漏洞，挖漏洞。累了不想学了就玩，玩够了看会书，困了睡觉。相对于别人的精彩生活，我的生活显得单调了很多。反复阅读我上文所写，感觉其中戾气和不满略偏多。<br>我想，这应该是潜意识在告诉我，我对我当下的环境并不满意，事实上也确实如此。</p>
+<p>所以我又在思考，为什么我要做这些思考？为什么要做出这些努力？</p>
+<p>审视自己后发现，思考是我解决痛苦的方式。做出努力除了对安全有兴趣之外，是怕找不到理想的工作。<br>这么一看，驱动我前进的动力，掺杂的巨量的恐惧和焦虑。该如何解决呢？还是说人生本就如此。</p>
+<p>我想这些问题，不是我现在能想明白的。总之，无论如何，平衡这些心理因素应当是我明年该做的事情，新生的疑问和思考，尚且留给未来的自己去解决。希望明年写年终总结的时候，看待今日所思所想，所困所惑，能够感叹一句：“真他妈傻逼”。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/life-thinking/" class="print-no-link">#life & thinking</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2024年终总结</div>
+      <div>http://example.com/2024/12/30/2024年终总结/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>December 30, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/08/zookeeper-Admin-Server%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2024-51504/" title="zookeeper-Admin-Server认证绕过-CVE-2024-51504">
+                        <span class="hidden-mobile">zookeeper-Admin-Server认证绕过-CVE-2024-51504</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,776 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言 看了南大的软件分析课程，还是很有意思的，顺便学了soot，终于是可以看明白tabby源码了。 soot教程见 https:&#x2F;&#x2F;fynch3r.github.io&#x2F;soot%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86&#x2F; ，总结的挺牛逼的。 tabby分析参考： https:&#x2F;&#x2F;m0d9.me&#x2F;2022&#x2F;10&#x2F;22&#x2F;Tabby-%E5%B7%A5%E">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tabby源码阅读">
+<meta property="og:url" content="http://example.com/2024/11/07/tabby%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前言 看了南大的软件分析课程，还是很有意思的，顺便学了soot，终于是可以看明白tabby源码了。 soot教程见 https:&#x2F;&#x2F;fynch3r.github.io&#x2F;soot%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86&#x2F; ，总结的挺牛逼的。 tabby分析参考： https:&#x2F;&#x2F;m0d9.me&#x2F;2022&#x2F;10&#x2F;22&#x2F;Tabby-%E5%B7%A5%E">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730963912842.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730964340358.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730964480804.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730964564082.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730964581154.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730966881352.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730966856205.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730967661907.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730967681931.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730967822951.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730969190081.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730969255411.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730969330731.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730969628115.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730969805331.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730969877934.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730970442967.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730970378120.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730970419164.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730970504142.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730970713849.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730985242103.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730985411605.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730985801847.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730986890090.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730986969983.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1730987898882.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1731033944666.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1731034129511.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1731034573044.png">
+<meta property="og:image" content="http://example.com/tabby/QQ_1731034707138.png">
+<meta property="article:published_time" content="2024-11-07T07:08:35.000Z">
+<meta property="article:modified_time" content="2024-11-08T03:20:44.132Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="SAST">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/tabby/QQ_1730963912842.png">
+  
+  
+  
+  <title>tabby源码阅读 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="tabby源码阅读"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-07 15:08" pubdate>
+          November 7, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.8k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">tabby源码阅读</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>前言</p>
+<p>看了南大的软件分析课程，还是很有意思的，顺便学了soot，终于是可以看明白tabby源码了。</p>
+<p>soot教程见 <a target="_blank" rel="noopener" href="https://fynch3r.github.io/soot%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/">https://fynch3r.github.io/soot%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/</a> ，总结的挺牛逼的。</p>
+<p>tabby分析参考：</p>
+<p><a target="_blank" rel="noopener" href="https://m0d9.me/2022/10/22/Tabby-%E5%B7%A5%E5%85%B7%E5%88%86%E6%9E%90/">https://m0d9.me/2022/10/22/Tabby-%E5%B7%A5%E5%85%B7%E5%88%86%E6%9E%90/</a></p>
+<p><a target="_blank" rel="noopener" href="https://tttang.com/archive/1696/#toc_11">https://tttang.com/archive/1696/#toc_11</a></p>
+<p>本文只记录较为关键的部分。</p>
+<h1 id="类-方法信息搜集"><a href="#类-方法信息搜集" class="headerlink" title="类&#x2F;方法信息搜集"></a>类&#x2F;方法信息搜集</h1><p>和GadgetInspector一样，先搜集类和方法的信息。然后build调用图</p>
+<h2 id="ClassInfoScanner-run"><a href="#ClassInfoScanner-run" class="headerlink" title="ClassInfoScanner#run"></a>ClassInfoScanner#run</h2><p><img src="/../tabby/QQ_1730963912842.png" srcset="/img/loading.gif" lazyload alt="QQ_1730963912842"></p>
+<p>先后调用了这些方法，一个一个看。</p>
+<h3 id="loadAndExtract"><a href="#loadAndExtract" class="headerlink" title="loadAndExtract"></a>loadAndExtract</h3><p><img src="/../tabby/QQ_1730964340358.png" srcset="/img/loading.gif" lazyload alt="QQ_1730964340358"></p>
+<p>关键在于collector.collect， theClass是SootClass，这个是Soot的类。一个SootClass包含一个Java类所有相关的信息，例如这个类的类名、修饰符、父类、SootField、SootMethod链等。</p>
+<p><img src="/../tabby/QQ_1730964480804.png" srcset="/img/loading.gif" lazyload alt="QQ_1730964480804"></p>
+<p>搜集了类和方法的信息，这里有两个作者自定义的数据结构，ClassReference和MethodReference，用于储存信息。</p>
+<p>都是把SootClass和SootMethod提取出来，丢进xxRefence的newInstance方法构建。</p>
+<p><img src="/../tabby/QQ_1730964564082.png" srcset="/img/loading.gif" lazyload alt="QQ_1730964564082"></p>
+<p><img src="/../tabby/QQ_1730964581154.png" srcset="/img/loading.gif" lazyload alt="QQ_1730964581154"></p>
+<p>可以看到还用到了@Column注解，用于未来保存信息到数据库。</p>
+<p>最后MethodReference信息丢进dataContainer里，classReference的信息Return回去。</p>
+<p>DataContainer Field如下，存放了各种需要用到的信息：</p>
+<p><img src="/../tabby/QQ_1730966881352.png" srcset="/img/loading.gif" lazyload alt="QQ_1730966881352"></p>
+<h3 id="transform"><a href="#transform" class="headerlink" title="transform"></a>transform</h3><p>主要就是把ClassRef信息丢进dataContainer里。</p>
+<p><img src="/../tabby/QQ_1730966856205.png" srcset="/img/loading.gif" lazyload alt="QQ_1730966856205"></p>
+<h3 id="buildClassEdges"><a href="#buildClassEdges" class="headerlink" title="buildClassEdges"></a>buildClassEdges</h3><p><img src="/../tabby/QQ_1730967661907.png" srcset="/img/loading.gif" lazyload alt="QQ_1730967661907"></p>
+<p>到collectionRelationInfo</p>
+<p><img src="/../tabby/QQ_1730967681931.png" srcset="/img/loading.gif" lazyload alt="QQ_1730967681931"></p>
+<p>可以看到处理接口，类继承，函数别名的信息。</p>
+<p>最后是save，作者用了springboot框架，对这些信息写了Repository和Service，方便和数据库交互。具体都在这里：</p>
+<p><img src="/../tabby/QQ_1730967822951.png" srcset="/img/loading.gif" lazyload alt="QQ_1730967822951"></p>
+<h1 id="CallGraph构建"><a href="#CallGraph构建" class="headerlink" title="CallGraph构建"></a>CallGraph构建</h1><p><img src="/../tabby/QQ_1730969190081.png" srcset="/img/loading.gif" lazyload alt="QQ_1730969190081"></p>
+<p>CallGraphCollector#collect</p>
+<p>对于一些方法，Phantom方法，sink，忽略的，抽象方法和native方法，这些都没法分析。（sink不需要分析）直接跳过。</p>
+<p>Phantom：</p>
+<p><img src="/../tabby/QQ_1730969255411.png" srcset="/img/loading.gif" lazyload alt="QQ_1730969255411"></p>
+<p>然后是无参的static method，没法控制，也直接跳了。</p>
+<p>Switcher#doAnalysis</p>
+<p><img src="/../tabby/QQ_1730969330731.png" srcset="/img/loading.gif" lazyload alt="QQ_1730969330731"></p>
+<p>提取了method的body部分（Jimple码格式）</p>
+<p>然后构建了BriefUnitGraph。</p>
+<p>makeDefault里主要是new一个PollutedVarsPointsToAnalysis。这块是关键。</p>
+<p><img src="/../tabby/QQ_1730969628115.png" srcset="/img/loading.gif" lazyload alt="QQ_1730969628115"></p>
+<p>前向分析。</p>
+<h2 id="LiveVariablesAnalysis示例"><a href="#LiveVariablesAnalysis示例" class="headerlink" title="LiveVariablesAnalysis示例"></a>LiveVariablesAnalysis示例</h2><p>先不看这个，有点复杂，先来看怎么用soot实现LiveVariablesAnalysis</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/PL-Ninja/MySootScript">https://github.com/PL-Ninja/MySootScript</a></p>
+<p>先来看算法：<br><img src="/../tabby/QQ_1730969805331.png" srcset="/img/loading.gif" lazyload alt="QQ_1730969805331"></p>
+<p>看起来挺复杂，其实就是不断的kill掉定义的variable，并上use过的variable，具体例子可以看这个：</p>
+<p><img src="/../tabby/QQ_1730969877934.png" srcset="/img/loading.gif" lazyload alt="QQ_1730969877934"></p>
+<p>tabby那个是正向分析，这个LiveVariablesAnalysis的实现是反向的，从后往前看。</p>
+<p>每个框旁边有两个集合，上面是IN set， 下面是OUT set</p>
+<p>a&#x3D;z, kill a,  add  z, 因为本来就没a，不用管它，所以IN &#x3D; {z}，然后直接把这个In set copy到b&#x3D;y的out set</p>
+<p>b&#x3D;y, kill b, add y, 所以IN &#x3D; {z, y}</p>
+<p>然后是对于分支操作，做union，可以看到{z, y}和{y} merge成了{z, y}</p>
+<p>后续的y&#x3D;x也同理。最后得到z ,x 。 </p>
+<p>如何实现的呢？</p>
+<p><img src="/../tabby/QQ_1730970442967.png" srcset="/img/loading.gif" lazyload alt="QQ_1730970442967"></p>
+<p>先看SimpleLiveVariablesAnalysis.java</p>
+<p><img src="/../tabby/QQ_1730970378120.png" srcset="/img/loading.gif" lazyload alt="QQ_1730970378120"></p>
+<p>merge和copy操作没啥多说的，直接调soot的api即可。</p>
+<p><img src="/../tabby/QQ_1730970419164.png" srcset="/img/loading.gif" lazyload alt="QQ_1730970419164"></p>
+<p>flowThrough方法是实现数据流分析的函数。</p>
+<p><img src="/../tabby/QQ_1730970504142.png" srcset="/img/loading.gif" lazyload alt="QQ_1730970504142"></p>
+<p>kill方法，重写了caseLocal，意思是在处理局部变量的时候进行的操作。</p>
+<p>可以看到defIt是DefBoxes的iterator，DefBoxes指向了所有的定义，然后在caseLocal里，遍历后丢入kills集合。</p>
+<p>最后调用inset.difference(kills, destSet), 这个函数的作用就是其上面的注释</p>
+<p>destSet &#x3D; inSet - kills</p>
+<p><img src="/../tabby/QQ_1730970713849.png" srcset="/img/loading.gif" lazyload alt="QQ_1730970713849"></p>
+<p>gen方法也差不多，把Use到的变量丢到destSet里。由于这个算法比较简单，都没有重写doAnalysis。</p>
+<h2 id="tabby的PollutedVarsPointsToAnalysis"><a href="#tabby的PollutedVarsPointsToAnalysis" class="headerlink" title="tabby的PollutedVarsPointsToAnalysis"></a>tabby的PollutedVarsPointsToAnalysis</h2><p>有了简单的例子后，再看tabby的实现就比较轻松了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doAnalysis</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">for</span>(ValueBox box:body.getUseAndDefBoxes())&#123;<br>            <span class="hljs-type">Value</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span> box.getValue();<br>            <span class="hljs-type">Type</span> <span class="hljs-variable">type</span> <span class="hljs-operator">=</span> value.getType();<br>            <span class="hljs-keyword">if</span>(type <span class="hljs-keyword">instanceof</span> PrimType)&#123; <span class="hljs-comment">// 对于基础数据类型 直接跳过</span><br>                <span class="hljs-keyword">continue</span>;<br>            &#125;<br>            <span class="hljs-keyword">if</span>(value <span class="hljs-keyword">instanceof</span> Local &amp;&amp; !initialMap.containsKey(value))&#123;<br>                initialMap.put((Local) value, TabbyVariable.makeLocalInstance((Local) value));<br>            &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(value <span class="hljs-keyword">instanceof</span> InstanceFieldRef)&#123;<br>                <span class="hljs-type">InstanceFieldRef</span> <span class="hljs-variable">ifr</span> <span class="hljs-operator">=</span> (InstanceFieldRef) value;<br>                <span class="hljs-type">SootField</span> <span class="hljs-variable">sootField</span> <span class="hljs-operator">=</span> ifr.getField();<br>                <span class="hljs-type">SootFieldRef</span> <span class="hljs-variable">sfr</span> <span class="hljs-operator">=</span> ifr.getFieldRef();<br><br>                <span class="hljs-type">String</span> <span class="hljs-variable">signature</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>                <span class="hljs-keyword">if</span>(sootField != <span class="hljs-literal">null</span>)&#123;<br>                    signature = sootField.getSignature();<br>                &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(sfr != <span class="hljs-literal">null</span>)&#123;<br>                    signature = sfr.getSignature();<br>                &#125;<br><br>                <span class="hljs-type">Value</span> <span class="hljs-variable">base</span> <span class="hljs-operator">=</span> ifr.getBase();<br>                <span class="hljs-keyword">if</span>(base <span class="hljs-keyword">instanceof</span> Local)&#123;<br>                    <span class="hljs-type">TabbyVariable</span> <span class="hljs-variable">baseVar</span> <span class="hljs-operator">=</span> initialMap.get(base);<br>                    <span class="hljs-keyword">if</span>(baseVar == <span class="hljs-literal">null</span>)&#123;<br>                        baseVar = TabbyVariable.makeLocalInstance((Local) base);<br>                        initialMap.put((Local) base, baseVar);<br>                    &#125;<br>                    <span class="hljs-type">TabbyVariable</span> <span class="hljs-variable">fieldVar</span> <span class="hljs-operator">=</span> baseVar.getField(signature);<br>                    <span class="hljs-keyword">if</span>(fieldVar == <span class="hljs-literal">null</span>)&#123;<br>                        <span class="hljs-keyword">if</span>(sootField != <span class="hljs-literal">null</span>)&#123;<br>                            fieldVar = TabbyVariable.makeFieldInstance(baseVar, sootField);<br>                        &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(sfr != <span class="hljs-literal">null</span>)&#123;<br>                            fieldVar = TabbyVariable.makeFieldInstance(baseVar, sfr);<br>                        &#125;<br>                        <span class="hljs-keyword">if</span>(fieldVar != <span class="hljs-literal">null</span> &amp;&amp; signature != <span class="hljs-literal">null</span>)&#123;<br>                            fieldVar.setOrigin(value);<br>                            baseVar.addField(signature, fieldVar);<br>                        &#125;<br>                    &#125;<br>                &#125;<br>            &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(value <span class="hljs-keyword">instanceof</span> ArrayRef)&#123;<br>                <span class="hljs-type">ArrayRef</span> <span class="hljs-variable">v</span> <span class="hljs-operator">=</span> (ArrayRef) value;<br>                <span class="hljs-type">Value</span> <span class="hljs-variable">base</span> <span class="hljs-operator">=</span> v.getBase();<br>                <span class="hljs-keyword">if</span>(base <span class="hljs-keyword">instanceof</span> Local)&#123;<br>                    <span class="hljs-type">TabbyVariable</span> <span class="hljs-variable">baseVar</span> <span class="hljs-operator">=</span> initialMap.get(base);<br>                    <span class="hljs-keyword">if</span>(baseVar == <span class="hljs-literal">null</span>)&#123;<br>                        baseVar = TabbyVariable.makeLocalInstance((Local) base);<br>                        initialMap.put((Local) base, baseVar);<br>                    &#125;<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-built_in">super</span>.doAnalysis();<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里获取了所有的Use和Def，然后对基础类型，局部变量，势利Field和数组四种数据类型进行判断，（基础类型直接跳，不分析），处理好后丢进InitialMap里。</p>
+<p>flowThrough：</p>
+<p>前面是一些性能相关的，关键代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java">Map&lt;Local, TabbyVariable&gt; newIn = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;(); <span class="hljs-comment">// TODO debug</span><br>copy(in, newIn);<br>context.setLocalMap(newIn);<br>context.setInitialMap(initialMap);<br>stmtSwitcher.setContext(context);<br>stmtSwitcher.setDataContainer(dataContainer);<br>d.apply(stmtSwitcher);<br>out.putAll(clean(context.getLocalMap()));<br></code></pre></td></tr></table></figure>
+
+<p>可以看到给Unit apply了stmtSwitcher，这个在makeDefault初始化的时候设置为SimpleStmtSwitcher</p>
+<p><code>StmtSwitcher</code>的实现类为<code>SimpleStmtSwitcher</code>，代码中主要处理了<code>InvokeStmt</code>、<code>AssignStmt</code>、<code>IdentityStmt</code>、<code>ReturnStmt</code>四种类型的实现，对应着方法调用、赋值、定义、返回四种类型的jimple语句</p>
+<h2 id="SimpleStmtSwitcher"><a href="#SimpleStmtSwitcher" class="headerlink" title="SimpleStmtSwitcher"></a>SimpleStmtSwitcher</h2><h3 id="caseAssignStmt"><a href="#caseAssignStmt" class="headerlink" title="caseAssignStmt"></a>caseAssignStmt</h3><p><img src="/../tabby/QQ_1730985242103.png" srcset="/img/loading.gif" lazyload alt="QQ_1730985242103"></p>
+<p>分为左值右值，分别实现了一个valueSwitcher。先看SimpleRightValueSwitcher</p>
+<p><img src="/../tabby/QQ_1730985411605.png" srcset="/img/loading.gif" lazyload alt="QQ_1730985411605"> </p>
+<p>局部变量，static，field和函数的。没啥说的。</p>
+<p><img src="/../tabby/QQ_1730985801847.png" srcset="/img/loading.gif" lazyload alt="QQ_1730985801847"></p>
+<p>对于Array类型的，通过index获取。但是index是local的情况下没办法推算值，这块功能没实现。所以直接把整个数组setResult了。这样会可能会导致误报增多。</p>
+<p>再看Left的，Left这边有点复杂，先从caseLocal看：</p>
+<p><img src="/../tabby/QQ_1730986890090.png" srcset="/img/loading.gif" lazyload alt="QQ_1730986890090"></p>
+<p>这个unbind是caseAssign里的变量，如果右值是CONSTANT或者StringCONSTANT，unbind就为true。很明显这两个类型没法污点传播。</p>
+<p>generateAction：</p>
+<p><img src="/../tabby/QQ_1730986969983.png" srcset="/img/loading.gif" lazyload alt="QQ_1730986969983"></p>
+<p>这里就到了action表了，关于这部分的内容见KCON 2022 tabby的ppt，或者<a target="_blank" rel="noopener" href="https://m0d9.me/2022/10/22/Tabby-%E5%B7%A5%E5%85%B7%E5%88%86%E6%9E%90/">https://m0d9.me/2022/10/22/Tabby-%E5%B7%A5%E5%85%B7%E5%88%86%E6%9E%90/</a></p>
+<p>如果右值是被污染的，并且unbind为true。设置action为clear，意思是没用。</p>
+<p>如果左值被污染，unbind为false，再判断右值是否被污染，如果右值被污染，正常addaction即可；如果右值没被污染，就设置action为clear</p>
+<p>为什么要有第三种情况呢？假如说有这种情况：</p>
+<p>a &#x3D; [EvilInput]</p>
+<p>a &#x3D; b</p>
+<p>此时b不是被污染的，a被重新赋值，虽然a是被污染的，但是a也没用了，所以设置action为clear。</p>
+<p>然后回到caseLocal，unbind为true， clear左值信息，不是的话把右值赋值给左值。</p>
+<p>其他大同小异，不做赘述了。</p>
+<h3 id="caseIdentityStmt"><a href="#caseIdentityStmt" class="headerlink" title="caseIdentityStmt"></a>caseIdentityStmt</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">caseIdentityStmt</span><span class="hljs-params">(IdentityStmt stmt)</span> &#123;<br>    <span class="hljs-type">Value</span> <span class="hljs-variable">lop</span> <span class="hljs-operator">=</span> stmt.getLeftOp();<br>    <span class="hljs-type">Value</span> <span class="hljs-variable">rop</span> <span class="hljs-operator">=</span> stmt.getRightOp();<br>    <span class="hljs-keyword">if</span>(rop <span class="hljs-keyword">instanceof</span> ThisRef)&#123;<br>        context.bindThis(lop);<br>    &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(rop <span class="hljs-keyword">instanceof</span> ParameterRef)&#123;<br>        <span class="hljs-type">ParameterRef</span> <span class="hljs-variable">pr</span> <span class="hljs-operator">=</span> (ParameterRef)rop;<br>        context.bindArg((Local)lop, pr.getIndex());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这部分主要是处理this和param的，因为在Jimple里，这两个会被显式的赋值给局部变量处理，tttang那篇这块写的挺好的：</p>
+<p><img src="/../tabby/QQ_1730987898882.png" srcset="/img/loading.gif" lazyload alt="QQ_1730987898882"></p>
+<p>就不写了。</p>
+<h3 id="caseInvokeStmt"><a href="#caseInvokeStmt" class="headerlink" title="caseInvokeStmt"></a>caseInvokeStmt</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">caseInvokeStmt</span><span class="hljs-params">(InvokeStmt stmt)</span> &#123;<br>    <span class="hljs-comment">// extract baseVar and args</span><br>    <span class="hljs-type">InvokeExpr</span> <span class="hljs-variable">ie</span> <span class="hljs-operator">=</span> stmt.getInvokeExpr();<br>    <span class="hljs-keyword">if</span>(<span class="hljs-string">&quot;&lt;java.lang.Object: void &lt;init&gt;()&gt;&quot;</span>.equals(ie.getMethodRef().getSignature())) <span class="hljs-keyword">return</span>;<br>    <span class="hljs-keyword">if</span>(GlobalConfiguration.DEBUG)&#123;<br>        log.debug(<span class="hljs-string">&quot;Analysis: &quot;</span>+ie.getMethodRef().getSignature() + <span class="hljs-string">&quot;; &quot;</span>+context.getTopMethodSignature());<br>    &#125;<br>    Switcher.doInvokeExprAnalysis(stmt, ie, dataContainer, context, builder);<br>    <span class="hljs-keyword">if</span>(GlobalConfiguration.DEBUG) &#123;<br>        log.debug(<span class="hljs-string">&quot;Analysis: &quot;</span> + ie.getMethodRef().getName() + <span class="hljs-string">&quot; done, return to&quot;</span> + context.getMethodSignature() + <span class="hljs-string">&quot;; &quot;</span>+context.getTopMethodSignature());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>遇到Object的init直接跳了，减少工作量。</p>
+<p>主要逻辑在Switcher.doInvokeExprAnalysis里。</p>
+<p><img src="/../tabby/QQ_1731033944666.png" srcset="/img/loading.gif" lazyload alt="QQ_1731033944666"></p>
+<p>首先是获得pollution，tabby是这样定义的：<br>-3  不可控</p>
+<p>-2  是source（没太理解具体咋起作用的）</p>
+<p>-1 是来自当前方法所在类的Field</p>
+<p>0-n 是来自当前方法的参数</p>
+<p>例如这个例子：</p>
+<p><img src="/../tabby/QQ_1731034129511.png" srcset="/img/loading.gif" lazyload alt="QQ_1731034129511"></p>
+<p>写的挺好的我就不写了。</p>
+<p>然后就要继续递归分析调用的这个方法了：<br><img src="/../tabby/QQ_1731034573044.png" srcset="/img/loading.gif" lazyload alt="QQ_1731034573044"></p>
+<p>从invokeExpr取出invokeMethod，然后创建一个subContext，递归调用doMethodAnalysis。</p>
+<p><img src="/../tabby/QQ_1731034707138.png" srcset="/img/loading.gif" lazyload alt="QQ_1731034707138"></p>
+<p>m0d9博客提出的问题，因为每次都递归调用到最底层，这个作用就类似于逆拓扑，保证调用时的传播函数可知。</p>
+<p>同样的，最后通过spring save到文件里。</p>
+<p>完。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/SAST/" class="print-no-link">#SAST</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>tabby源码阅读</div>
+      <div>http://example.com/2024/11/07/tabby源码阅读/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>November 7, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/11/08/zookeeper-Admin-Server%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2024-51504/" title="zookeeper-Admin-Server认证绕过-CVE-2024-51504">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">zookeeper-Admin-Server认证绕过-CVE-2024-51504</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/04/%E5%A6%82%E4%BD%95%E5%AF%B9%E8%87%AA%E5%B7%B1%E5%81%9A%E5%BF%83%E7%90%86%E6%B2%BB%E7%96%97/" title="如何对自己做心理治疗">
+                        <span class="hidden-mobile">如何对自己做心理治疗</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

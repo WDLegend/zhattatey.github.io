@@ -1,0 +1,734 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="学习下SAST的内容，先从GadgetInspector开始。 涉及到大量asm和java字节操作码的知识，有点困难，日后还是要系统学下好。 文章参考： https:&#x2F;&#x2F;xz.aliyun.com&#x2F;t&#x2F;7058 https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1683&#x2F; 网上很多文章感觉讲的很明白了，这里记录下核心逻辑的笔记。 局部污点分析逆拓扑排序首先要了解逆拓扑排序，例如一个有向无环图">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GadgetInspector源码阅读学习">
+<meta property="og:url" content="http://example.com/2024/10/13/GadgetInspector%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="学习下SAST的内容，先从GadgetInspector开始。 涉及到大量asm和java字节操作码的知识，有点困难，日后还是要系统学下好。 文章参考： https:&#x2F;&#x2F;xz.aliyun.com&#x2F;t&#x2F;7058 https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1683&#x2F; 网上很多文章感觉讲的很明白了，这里记录下核心逻辑的笔记。 局部污点分析逆拓扑排序首先要了解逆拓扑排序，例如一个有向无环图">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728813119732.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728813728064.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728814179298.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728813597496.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728820234915.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728865018212.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728865227590.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728865398750.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728865464434.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728865625760.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728871328383.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728871827220.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728871881418.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728872142324.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728872957325.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728873099231.png">
+<meta property="og:image" content="http://example.com/GadgetInspector/QQ_1728873588076.png">
+<meta property="article:published_time" content="2024-10-13T09:13:27.000Z">
+<meta property="article:modified_time" content="2024-10-14T02:54:58.721Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="SAST">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/GadgetInspector/QQ_1728813119732.png">
+  
+  
+  
+  <title>GadgetInspector源码阅读学习 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="GadgetInspector源码阅读学习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-13 17:13" pubdate>
+          October 13, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.5k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          13 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">GadgetInspector源码阅读学习</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>学习下SAST的内容，先从GadgetInspector开始。</p>
+<p>涉及到大量asm和java字节操作码的知识，有点困难，日后还是要系统学下好。</p>
+<p>文章参考：</p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7058">https://xz.aliyun.com/t/7058</a></p>
+<p><a target="_blank" rel="noopener" href="https://tttang.com/archive/1683/">https://tttang.com/archive/1683/</a></p>
+<p>网上很多文章感觉讲的很明白了，这里记录下核心逻辑的笔记。</p>
+<h1 id="局部污点分析"><a href="#局部污点分析" class="headerlink" title="局部污点分析"></a>局部污点分析</h1><h2 id="逆拓扑排序"><a href="#逆拓扑排序" class="headerlink" title="逆拓扑排序"></a>逆拓扑排序</h2><p>首先要了解逆拓扑排序，例如一个有向无环图</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs clean">A-&gt;B<br><br>A-&gt;C<br><br>B-&gt;D<br><br>C-&gt;D<br></code></pre></td></tr></table></figure>
+
+<p>这里，节点 <code>D</code> 依赖于 <code>B</code> 和 <code>C</code>，而 <code>B</code> 和 <code>C</code> 都依赖于 <code>A</code></p>
+<p>我想知道D是否依赖于A，那么就可以从逆拓扑排序的结果里找了。</p>
+<p>比如这个排序结果就是<code>[D, B, C, A]</code> ，但注意的是，逆拓扑只能保证一个大概结果，比如我们无法判断B,C之间的关系。所以要判断这类关系还要看原始图结构</p>
+<p>GadgetInspector的拓扑排序是基于DFS的，网上文章有很多，原理不写了，直接看他怎么实现的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">dfsTsort</span><span class="hljs-params">(Map&lt;MethodReference.Handle, Set&lt;MethodReference.Handle&gt;&gt; outgoingReferences,</span><br><span class="hljs-params">                                    List&lt;MethodReference.Handle&gt; sortedMethods, Set&lt;MethodReference.Handle&gt; visitedNodes,</span><br><span class="hljs-params">                                    Set&lt;MethodReference.Handle&gt; stack, MethodReference.Handle node)</span> &#123;<br><br>				<span class="hljs-comment">//环存在，直接return（不应该有环）</span><br>        <span class="hljs-keyword">if</span> (stack.contains(node)) &#123;<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>        <span class="hljs-comment">// 访问过了，直接return</span><br>        <span class="hljs-keyword">if</span> (visitedNodes.contains(node)) &#123;<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>        <br>        Set&lt;MethodReference.Handle&gt; outgoingRefs = outgoingReferences.get(node);<br>        <span class="hljs-comment">//没有出边，代表到尽头了</span><br>        <span class="hljs-keyword">if</span> (outgoingRefs == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br><br>  			<span class="hljs-comment">//将节点加入栈中</span><br>        stack.add(node);<br>  			<span class="hljs-comment">//递归调用所有子节点</span><br>        <span class="hljs-keyword">for</span> (MethodReference.Handle child : outgoingRefs) &#123;<br>            dfsTsort(outgoingReferences, sortedMethods, visitedNodes, stack, child);<br>        &#125;<br>  			<br>  			<span class="hljs-comment">//最后栈是空的，全remove掉了</span><br>        stack.remove(node);<br>  			<span class="hljs-comment">//该节点访问过了，加进visitedNodes</span><br>        visitedNodes.add(node);<br>  			<span class="hljs-comment">//将该节点加入排序结果</span><br>        sortedMethods.add(node);<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="污点分析"><a href="#污点分析" class="headerlink" title="污点分析"></a>污点分析</h2><p>在抵达一个方法的时候，先把this放在局部变量表第一位</p>
+<p>然后来到TaintTrackingMethodVisitor#visitVarInsn</p>
+<p><img src="/../GadgetInspector/QQ_1728813119732.png" srcset="/img/loading.gif" lazyload alt="QQ_1728813119732"></p>
+<p>ALOAD是引用类型的（对象），其他几个Int Float Double Long，反序列化中没啥用，直接给他忽略了。所以只有ALOAD分支才入操作数栈</p>
+<p>然后来到PassthroughDiscovery#visitInsn</p>
+<p><img src="/../GadgetInspector/QQ_1728813728064.png" srcset="/img/loading.gif" lazyload alt="QQ_1728813728064"> </p>
+<p>如图，会从操作数栈里获取污点</p>
+<p><img src="/../GadgetInspector/QQ_1728814179298.png" srcset="/img/loading.gif" lazyload alt="QQ_1728814179298"></p>
+<p>为啥是拿栈顶的呢？因为JVM规定，返回值总是位于栈顶。</p>
+<p>但是这里有点没太搞懂，他结果不是有可能有多个索引吗，这样的话只能获取一个？</p>
+<p>最后会回到gadgetinspector.PassthroughDiscovery#calculatePassthroughDataflow</p>
+<p><img src="/../GadgetInspector/QQ_1728813597496.png" srcset="/img/loading.gif" lazyload alt="QQ_1728813597496"></p>
+<p>缓存结果在passthroughDataflow</p>
+<p>那么假如在某个函数里调用了另一个函数呢？此时就会来到：visitMethodInsn</p>
+<p><img src="/../GadgetInspector/QQ_1728820234915.png" srcset="/img/loading.gif" lazyload alt="QQ_1728820234915"></p>
+<p>如图，重点在最后几行。passthroughDataflow就是之前的缓存结果，这也是为什么要逆拓扑排序。实际debug时，总是Object的构造函数最先被分析，因为Object是所有类的父类，其构造函数当然处于逆拓扑排序的开头部分。</p>
+<p>这样，在某个函数调用另一个函数的时候，总可以在缓存里取到结果。</p>
+<p>callgraph部分和这部分差不多，就不写了。</p>
+<h1 id="SourceDiscovery"><a href="#SourceDiscovery" class="headerlink" title="SourceDiscovery"></a>SourceDiscovery</h1><p>这个类是决定反序列化入口的抽象类，可以先看其子类JacksonSourceDiscovery</p>
+<p><img src="/../GadgetInspector/QQ_1728865018212.png" srcset="/img/loading.gif" lazyload alt="QQ_1728865018212"></p>
+<p>非常简单，构造函数，getter和setter可以作为入口。那么另一个呢？</p>
+<p>SimpleSourceDiscovery</p>
+<p><img src="/../GadgetInspector/QQ_1728865227590.png" srcset="/img/loading.gif" lazyload alt="QQ_1728865227590"></p>
+<p>第一次才知道java有这个方法，类似php的__destruct，实际环境中根本没人这么写！</p>
+<p>然后看readObject，原生的反序列化入口。</p>
+<p><img src="/../GadgetInspector/QQ_1728865398750.png" srcset="/img/loading.gif" lazyload alt="QQ_1728865398750"></p>
+<p>看网上的文章老说无法处理动态代理，看起来作者后来是加进去了。</p>
+<p><img src="/../GadgetInspector/QQ_1728865464434.png" srcset="/img/loading.gif" lazyload alt="QQ_1728865464434"></p>
+<p>hashCode和equals也可以作为入口，可以把他们丢进hashMap触发。</p>
+<p><img src="/../GadgetInspector/QQ_1728865625760.png" srcset="/img/loading.gif" lazyload alt="QQ_1728865625760"></p>
+<p>最后是一个groovy的代理</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs less">https://github.com/frohoff/ysoserial/blob/master/<span class="hljs-attribute">src/main/java/ysoserial/payloads/Groovy1.java</span><br><span class="hljs-attribute"></span><br><span class="hljs-attribute">Gadget chain</span>:<br>		ObjectInputStream.<span class="hljs-built_in">readObject</span>()<br>			PriorityQueue.<span class="hljs-built_in">readObject</span>()<br>				Comparator.<span class="hljs-built_in">compare</span>() (Proxy)<br>					ConvertedClosure.<span class="hljs-built_in">invoke</span>()<br>						MethodClosure.<span class="hljs-built_in">call</span>()<br>							...<br>						  		Method.<span class="hljs-built_in">invoke</span>()<br>									Runtime.<span class="hljs-built_in">exec</span>()<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="利用链挖掘"><a href="#利用链挖掘" class="headerlink" title="利用链挖掘"></a>利用链挖掘</h1><p>第二关键的部分，现在我们已经有了所有想要的数据，接下来就是利用链挖掘的算法了。</p>
+<p><img src="/../GadgetInspector/QQ_1728871328383.png" srcset="/img/loading.gif" lazyload alt="QQ_1728871328383"></p>
+<p>首先加载了methodMap和inherianceMap，这些是在污点分析之前生成的。</p>
+<p>methodMap里面是所有的方法，包含方法名，描述符等信息。</p>
+<p>inheritanceMap结构是{某个类：{所有父类&#x2F;接口集合}}</p>
+<p>因为java可以重写方法，运行时不确定是哪个类。例如</p>
+<p>AbstactClass 和 ImplementationClassA, ImplementationClassB</p>
+<p>假设声明AbstractClass clazz。这个clazz可以是上面三者任意一个，只有运行时才能确定。</p>
+<p><img src="/../GadgetInspector/QQ_1728871827220.png" srcset="/img/loading.gif" lazyload alt="QQ_1728871827220"></p>
+<p>methodsByClass结构：{某类：{该类所有方法}}</p>
+<p><img src="/../GadgetInspector/QQ_1728871881418.png" srcset="/img/loading.gif" lazyload alt="QQ_1728871881418"></p>
+<p>然后生成subClassMap，结构是：{某类：{所有子类&#x2F;实现}}。和inheritanceMap刚好相反</p>
+<p><img src="/../GadgetInspector/QQ_1728872142324.png" srcset="/img/loading.gif" lazyload alt="QQ_1728872142324"></p>
+<p>遍历methodMap，首先判断method是否静态，静态方法不可被重写，是的话直接跳。</p>
+<p>然后获得该方法对应的类 的所有子类的方法，一个一个检查是否重名并且描述符相同（重写方法）。如果有丢到overridingMethods。最后再丢到methodImplMap</p>
+<p>所以methodImplMap的结构：{某方法：{它的所有重写方法}}</p>
+<p><img src="/../GadgetInspector/QQ_1728872957325.png" srcset="/img/loading.gif" lazyload alt="QQ_1728872957325"></p>
+<p>回到GadgetChanDiscovery#discover， 这里对callGraph也做了整合，最终graphCallMap结构大致为：{某方法：{该方法里调用的所有方法}}</p>
+<p><img src="/../GadgetInspector/QQ_1728873099231.png" srcset="/img/loading.gif" lazyload alt="QQ_1728873099231"></p>
+<p>这一步是source初始化，GadgetChainLink包含了sourceMethod和污点参数的信息。</p>
+<p><img src="/../GadgetInspector/QQ_1728873588076.png" srcset="/img/loading.gif" lazyload alt="QQ_1728873588076"></p>
+<p>最后一步了。</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf">GadgetChain chain <span class="hljs-operator">=</span> methodsToExplore.pop()<span class="hljs-comment">;</span><br>GadgetChainLink lastLink <span class="hljs-operator">=</span> chain.links.get(chain.links.size()-<span class="hljs-number">1</span>)<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>先从methodsToExplore弹出一个chain，然后获取这个chain的最后一个Link节点。</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">Set</span>&lt;GraphCall&gt; methodCalls = graphCallMap.<span class="hljs-keyword">get</span>(lastLink.<span class="hljs-keyword">method</span>);<br></code></pre></td></tr></table></figure>
+
+<p>从graphCallMap获取这个Link节点方法中，调用的所有其他方法。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-keyword">if</span> (graphCall.getCallerArgIndex() != lastLink.taintedArgIndex) &#123;<br>    <span class="hljs-keyword">continue</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后进入遍历，判断是否能被参数污染，不能就跳</p>
+<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pf">Set<span class="hljs-variable">&lt;MethodReference.Handle&gt;</span> <span class="hljs-literal">all</span>Impls = implementationFinder.getImplementations(graphC<span class="hljs-literal">all</span>.getTargetMethod());<br></code></pre></td></tr></table></figure>
+
+<p>获取被调用的方法的所有重写&#x2F;实现。再次遍历这个集合：</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs haxe">GadgetChainLink <span class="hljs-keyword">new</span><span class="hljs-type">Link</span> = <span class="hljs-keyword">new</span> <span class="hljs-type">GadgetChainLink</span>(methodImpl, graphCall.getTargetArgIndex());<br><span class="hljs-keyword">if</span> (exploredMethods.contains(<span class="hljs-keyword">new</span><span class="hljs-type">Link</span>)) &#123;<br>    <span class="hljs-keyword">continue</span>;<br>&#125;<br><br>GadgetChain <span class="hljs-keyword">new</span><span class="hljs-type">Chain</span> = <span class="hljs-keyword">new</span> <span class="hljs-type">GadgetChain</span>(chain, <span class="hljs-keyword">new</span><span class="hljs-type">Link</span>);<br></code></pre></td></tr></table></figure>
+
+<p>生成新Link节点，if防止死循环。如果没问题就生成newChain，由之前的chain和newLink拼接而成。</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><span class="hljs-keyword">if</span> (isSink(methodImpl, graphCall.getTargetArgIndex(), inheritanceMap)) &#123;<br>    discoveredGadgets.add(<span class="hljs-keyword">new</span><span class="hljs-type">Chain</span>);<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    methodsToExplore.add(<span class="hljs-keyword">new</span><span class="hljs-type">Chain</span>);<br>    exploredMethods.add(<span class="hljs-keyword">new</span><span class="hljs-type">Link</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>判断是不是sink，是的话加入discoverdGadgets，不是的话，丢进methodsToExplore，以后循环遍历的时候继续往下找。并且还要计入exploredMethods防止重复。</p>
+<p>随着methodsToExplore不断pop，exploredMethods不断增加，最后methodToExplore大小为0时，遍历结束，将结果写入txt文件里。</p>
+<p>完。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/SAST/" class="print-no-link">#SAST</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>GadgetInspector源码阅读学习</div>
+      <div>http://example.com/2024/10/13/GadgetInspector源码阅读学习/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>October 13, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/15/GadgetInspector%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0/" title="GadgetInspector优化学习">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">GadgetInspector优化学习</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/19/OpenMetaData-CVE-2024-28848-%E6%9D%83%E9%99%90%E7%BB%95%E8%BF%87%E5%8F%8ARCE/" title="OpenMetaData-CVE-2024-28848-权限绕过及RCE">
+                        <span class="hidden-mobile">OpenMetaData-CVE-2024-28848-权限绕过及RCE</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

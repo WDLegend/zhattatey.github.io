@@ -1,0 +1,652 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="OSCS在5月9日更新了一个inlong的通告，是关于JDBC的攻击的。在看最新绕过之前，先看看历史漏洞是怎么样的。 CVE-2023-34434利用没具体看，看了下通告，最初的绕过是把危险参数的value通过大小写绕过，true换成TRue就可绕过。 修复https:&#x2F;&#x2F;github.com&#x2F;apache&#x2F;inlong&#x2F;commit&#x2F;8390f8182457f76c87c66d45d3e5904">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache-Inlong-JDBCAttack历史绕过学习">
+<meta property="og:url" content="http://example.com/2024/05/20/Apache-Inlong-JDBCAttack%E5%8E%86%E5%8F%B2%E7%BB%95%E8%BF%87%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="OSCS在5月9日更新了一个inlong的通告，是关于JDBC的攻击的。在看最新绕过之前，先看看历史漏洞是怎么样的。 CVE-2023-34434利用没具体看，看了下通告，最初的绕过是把危险参数的value通过大小写绕过，true换成TRue就可绕过。 修复https:&#x2F;&#x2F;github.com&#x2F;apache&#x2F;inlong&#x2F;commit&#x2F;8390f8182457f76c87c66d45d3e5904">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/Inlong_jdbc/image-20240520212102270.png">
+<meta property="og:image" content="http://example.com/Inlong_jdbc/image-20240520212124112.png">
+<meta property="og:image" content="http://example.com/Inlong_jdbc/image-20240520212202636.png">
+<meta property="og:image" content="http://example.com/Inlong_jdbc/image-20240520212212848.png">
+<meta property="og:image" content="http://example.com/Inlong_jdbc/image-20240520212229029.png">
+<meta property="og:image" content="http://example.com/Inlong_jdbc/image-20240520212243753.png">
+<meta property="og:image" content="http://example.com/Inlong_jdbc/image-20240520212258688.png">
+<meta property="og:image" content="http://example.com/Inlong_jdbc/image-20240520212315998.png">
+<meta property="og:image" content="http://example.com/Inlong_jdbc/image-20240520212326395.png">
+<meta property="article:published_time" content="2024-05-20T10:30:54.000Z">
+<meta property="article:modified_time" content="2024-05-20T13:23:29.180Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="codeaudit">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/Inlong_jdbc/image-20240520212102270.png">
+  
+  
+  
+  <title>Apache-Inlong-JDBCAttack历史绕过学习 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Apache-Inlong-JDBCAttack历史绕过学习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-20 18:30" pubdate>
+          May 20, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          668 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          6 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Apache-Inlong-JDBCAttack历史绕过学习</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>OSCS在5月9日更新了一个inlong的通告，是关于JDBC的攻击的。<br>在看最新绕过之前，先看看历史漏洞是怎么样的。</p>
+<h1 id="CVE-2023-34434"><a href="#CVE-2023-34434" class="headerlink" title="CVE-2023-34434"></a>CVE-2023-34434</h1><h1 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h1><p>没具体看，看了下通告，最初的绕过是把危险参数的value通过大小写绕过，true换成TRue就可绕过。</p>
+<h2 id="修复"><a href="#修复" class="headerlink" title="修复"></a>修复</h2><p><a target="_blank" rel="noopener" href="https://github.com/apache/inlong/commit/8390f8182457f76c87c66d45d3e5904cc5a08bb5#diff-45d94c999b307075e81525a2d60fd5c44fcd41183ad98ff3373b8109e0aa0c51">https://github.com/apache/inlong/commit/8390f8182457f76c87c66d45d3e5904cc5a08bb5#diff-45d94c999b307075e81525a2d60fd5c44fcd41183ad98ff3373b8109e0aa0c51</a></p>
+<p><img src="/../Inlong_jdbc/image-20240520212102270.png" srcset="/img/loading.gif" lazyload alt="image-20240520212102270"></p>
+<p>这段自定义了SENSITIVE_REPLACE_PARAM_MAP和SENSITIVE_REMOVE_PARAM_MAP, 然后写了个filter<br><img src="/../Inlong_jdbc/image-20240520212124112.png" srcset="/img/loading.gif" lazyload alt="image-20240520212124112"><br>这里最开始直接用了URLDecoder.decode， url编码绕过无效。<br>然后把querystring部分截下来，打成key-value形式后丢进queryMap，然后和上面两个黑名单Map对比是否匹配。如果匹配到危险参数，就做删除或替换操作。最后再加到连接的url后面。</p>
+<h1 id="CVE-2023-43668"><a href="#CVE-2023-43668" class="headerlink" title="CVE-2023-43668"></a>CVE-2023-43668</h1><p>在mysql-connector在8.0.1x中（某个版本修复了），可以通过allowLoadLocalInFile来完成任意文件读取，这个选项默认为true。<br>所以如果不添加任何参数，就不会走到敏感参数检查的判断里，所以仍然存在任意文件读取。<br>而inlong的jar包刚好没有超过修复版本，这也导致了CVE-2023-43668</p>
+<h1 id="CVE-2023-46227"><a href="#CVE-2023-46227" class="headerlink" title="CVE-2023-46227"></a>CVE-2023-46227</h1><p>利用<code>\t</code>符号进行绕过，实际上不止<code>\t</code>,所有空白符都可以，这个和mysql-connector源码有关。</p>
+<p>比如用<code>\f</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">Class.forName(<span class="hljs-string">&quot;com.mysql.cj.jdbc.Driver&quot;</span>);            DriverManager.getConnection(<span class="hljs-string">&quot;jdbc:mysql://localhost:3306/test?\fallowLoadLocalInfile=true&quot;</span>);<br></code></pre></td></tr></table></figure>
+<p>在ConnectionUrlParser#parseQuerySection打断点。<br><img src="/../Inlong_jdbc/image-20240520212202636.png" srcset="/img/loading.gif" lazyload alt="image-20240520212202636"><br>问了下gpt。<br><img src="/../Inlong_jdbc/image-20240520212212848.png" srcset="/img/loading.gif" lazyload alt="image-20240520212212848"><br>所以随便插个空白符就能绕了。</p>
+<h2 id="修复-1"><a href="#修复-1" class="headerlink" title="修复"></a>修复</h2><p>连同43668在1.9.0版本修复了，过滤了所有空白符。<br>同时mysql-connector包也更新到了安全版本.<br><img src="/../Inlong_jdbc/image-20240520212229029.png" srcset="/img/loading.gif" lazyload alt="image-20240520212229029"><br>8.0.20版本及以上还修复了反序列化，之后的绕过也只能打任意文件读取了。</p>
+<h1 id="CVE-2024-26579"><a href="#CVE-2024-26579" class="headerlink" title="CVE-2024-26579"></a>CVE-2024-26579</h1><p>新版本过滤的逻辑也有点变动，要看一下。<br><img src="/../Inlong_jdbc/image-20240520212243753.png" srcset="/img/loading.gif" lazyload alt="image-20240520212243753"><br>与之前不同的是，遍历的时候添加了一个paramList，如果监测到危险参数就直接continue，不添加到paramList去。<br>最后在paramList把SENSITIVE_REPLACE_PARAM_MAP给丢进去，相当于一个覆盖操作。</p>
+<p>我在mysql-connector源码跟了半天流程看看传参数有没有其他处理方法，没找到。<br>官方文档：<br><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/connector-j/en/connector-j-reference-jdbc-url-format.html">https://dev.mysql.com/doc/connector-j/en/connector-j-reference-jdbc-url-format.html</a></p>
+<p>mysql的连接语法，可以用（）添加参数。<br><img src="/../Inlong_jdbc/image-20240520212258688.png" srcset="/img/loading.gif" lazyload alt="image-20240520212258688"><br>这样传参数便可以绕过敏感参数检查，后面再加#还可以注释掉REPLACE_MAP添加进的内容。从而绕过。</p>
+<p>发现者的绕过：<br><img src="/../Inlong_jdbc/image-20240520212315998.png" srcset="/img/loading.gif" lazyload alt="image-20240520212315998"></p>
+<p><img src="/../Inlong_jdbc/image-20240520212326395.png" srcset="/img/loading.gif" lazyload alt="image-20240520212326395">看起来也是有点奇怪。</p>
+<p>或者，更标准的写法：<br><code>jdbc:mysql://(host=127.0.0.1,port=3306,allowLoadLocalInfile=true)/test?maxAllowedPacket=655360#</code></p>
+<p>参考：<br><a target="_blank" rel="noopener" href="https://github.com/rmb122/rogue_mysql_server.git">https://github.com/rmb122/rogue_mysql_server.git</a><br><a target="_blank" rel="noopener" href="https://www.oscs1024.com/hd/MPS-7rbq-ze46">https://www.oscs1024.com/hd/MPS-7rbq-ze46</a><br><a target="_blank" rel="noopener" href="https://avd.aliyun.com/search?q=inlong">https://avd.aliyun.com/search?q=inlong</a><br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/lmoWKK41ZQzZOh-P26VUng">https://mp.weixin.qq.com/s/lmoWKK41ZQzZOh-P26VUng</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/codeaudit/" class="print-no-link">#codeaudit</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Apache-Inlong-JDBCAttack历史绕过学习</div>
+      <div>http://example.com/2024/05/20/Apache-Inlong-JDBCAttack历史绕过学习/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>May 20, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/06/JNDI%E9%AB%98%E7%89%88%E6%9C%AC%E7%BB%95%E8%BF%87%E4%B9%8BJDBCAttack%E6%80%BB%E7%BB%93/" title="JNDI高版本绕过之JDBCAttack总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">JNDI高版本绕过之JDBCAttack总结</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/12/Dubbo-hessianLite-CVE-2021-43297%E5%88%86%E6%9E%90/" title="">
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

