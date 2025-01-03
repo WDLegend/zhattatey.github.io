@@ -1,0 +1,679 @@
+
+
+<!DOCTYPE html>
+<html lang="zh" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zhattatey">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="新年新气象，年末就有思考，不太想局限于web了，学点新东西吧。正好对安卓逆向一直都有点兴趣，立一个学成的小目标，可以破解某境外诈骗软件&#x2F;色情直播软件并拿下对方服务器后台&#x2F;shell，回归最初学习安全的初心（还是搞破坏有意思）。 教程看的 https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1zk4y137Bn，感觉质量很好。 网上随便找一个app，紫色视频。但是这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android-reverse-去广告实战">
+<meta property="og:url" content="http://example.com/2025/01/03/android-reverse-%E5%8E%BB%E5%B9%BF%E5%91%8A/index.html">
+<meta property="og:site_name" content="zhattatey&#39;s blog">
+<meta property="og:description" content="新年新气象，年末就有思考，不太想局限于web了，学点新东西吧。正好对安卓逆向一直都有点兴趣，立一个学成的小目标，可以破解某境外诈骗软件&#x2F;色情直播软件并拿下对方服务器后台&#x2F;shell，回归最初学习安全的初心（还是搞破坏有意思）。 教程看的 https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1zk4y137Bn，感觉质量很好。 网上随便找一个app，紫色视频。但是这">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103195625557.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103200453438.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103200608045.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103200841823.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103200858642.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103201049170.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103201203636.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103201330869.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103201436180.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103201619618.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103201715642.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103201857952.png">
+<meta property="og:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103203142215.png">
+<meta property="article:published_time" content="2025-01-03T05:41:43.000Z">
+<meta property="article:modified_time" content="2025-01-03T12:52:31.219Z">
+<meta property="article:author" content="zhattatey">
+<meta property="article:tag" content="android reverse">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/AndroidReverseRemoveAD/image-20250103195625557.png">
+  
+  
+  
+  <title>Android-reverse-去广告实战 - zhattatey&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Startseite</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archiv</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Kategorien</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Schlagwörter</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>Über</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android-reverse-去广告实战"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-03 13:41" pubdate>
+          January 3, 2025 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          953 wörter
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          8 minuten
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Android-reverse-去广告实战</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>新年新气象，年末就有思考，不太想局限于web了，学点新东西吧。正好对安卓逆向一直都有点兴趣，立一个学成的小目标，可以破解某境外诈骗软件&#x2F;色情直播软件并拿下对方服务器后台&#x2F;shell，回归最初学习安全的初心（还是搞破坏有意思）。</p>
+<p>教程看的 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1zk4y137Bn%EF%BC%8C%E6%84%9F%E8%A7%89%E8%B4%A8%E9%87%8F%E5%BE%88%E5%A5%BD%E3%80%82">https://www.bilibili.com/video/BV1zk4y137Bn，感觉质量很好。</a></p>
+<p>网上随便找一个app，紫色视频。但是这玩意貌似有很多版本，比如我下的包名有麻豆视频：</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103195625557.png" srcset="/img/loading.gif" lazyload alt="image-20250103195625557"></p>
+<h1 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h1><p>打开MT管理器，打开Activity记录。</p>
+<p>打开后要观看广告，记录如下：</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103200453438.png" srcset="/img/loading.gif" lazyload alt="image-20250103200453438"></p>
+<p>最后一共看了两次广告。</p>
+<p>可以看到用了百度的SDK，去MainActivity看看。jadx打开apk：</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103200608045.png" srcset="/img/loading.gif" lazyload alt="image-20250103200608045"></p>
+<p>LoadAdBaiduBidding封装了调用百度SDK的逻辑，没啥看的。这个函数是void类型，可以直接在开头添加return-void。或者在onCreate方法里把那行注释掉即可。</p>
+<p>这里为了方便选第一种。</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103200841823.png" srcset="/img/loading.gif" lazyload alt="image-20250103200841823"></p>
+<p>打开SplashActivity看看：</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103200858642.png" srcset="/img/loading.gif" lazyload alt="image-20250103200858642"></p>
+<p>显然也调用了，这符合之前的看了两次广告的效果，</p>
+<p>NP管理器提取安装包，Dex编辑class文件：</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103201049170.png" srcset="/img/loading.gif" lazyload alt="image-20250103201049170"></p>
+<p>全局搜索下刚刚提到的，修改好后，保存后，再复制方法签名一下</p>
+<p>打开算法助手，选中紫电视频：</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103201203636.png" srcset="/img/loading.gif" lazyload alt="image-20250103201203636"></p>
+<p>点开后拉到最下面，添加自定义Hook，由于刚刚复制了方法签名，按确定即可，然后启动自定义hook。</p>
+<p>重启紫电视频，发现广告消失了，点进去一看，怪不得包名里有麻豆。。。</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103201330869.png" srcset="/img/loading.gif" lazyload alt="image-20250103201330869"></p>
+<p>明显这是个盗版紫电视频，逆天的还不在此。</p>
+<p>随便点击任何按钮，都会跳出这个页面：</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103201436180.png" srcset="/img/loading.gif" lazyload alt="image-20250103201436180"></p>
+<p>每次解锁都要看广告，由于我们hook掉了广告，点击提示暂时没有广告。</p>
+<p>在jadx里搜一下“暂时没有广告”：</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103201619618.png" srcset="/img/loading.gif" lazyload alt="image-20250103201619618"></p>
+<p>这个方法是showAd方法，按x看被谁调用了：</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103201715642.png" srcset="/img/loading.gif" lazyload alt="image-20250103201715642"></p>
+<p>这里有个判断，根据MainFragment.this.count的值设置button。我在hook之前测试了，点击那个立即解锁按钮，一共还要看三次广告才可以解锁，这就对应上了之前的逻辑。</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103201857952.png" srcset="/img/loading.gif" lazyload alt="image-20250103201857952"></p>
+<p>继续往上跟，发现这里count有判断，不为0就会到showReward。</p>
+<p>再往上跟发现他给所有按钮都设置了一个AdListener，然后每次点击必然会走到这里。</p>
+<p>所以此处修改this.count始终为0即可。</p>
+<p>打开np管理器，打开安装包，定位到对应的smali代码行，在函数开头添加：</p>
+<p>const&#x2F;4 p1, 0</p>
+<p>iput p1, p0, Lcom&#x2F;hb&#x2F;madouvideo&#x2F;MainFragment;-&gt;count:I</p>
+<p>重新hook后打开，点击立即解锁。</p>
+<p><img src="/../AndroidReverseRemoveAD/image-20250103203142215.png" srcset="/img/loading.gif" lazyload alt="image-20250103203142215"></p>
+<p>然后最终来到这个页面，what？我卸载后重装了原来没改过的，老老实实看了10分钟广告，最后也是来到这个页面，说明这个几把软件啥功能都没实现，就是让你看广告，然后来到另一个app的下载。。。</p>
+<p>而且以后每次打开这个软件，都只有这个页面了。如果点取消，就会直接白屏。我也是难绷了。</p>
+<h1 id="踩坑"><a href="#踩坑" class="headerlink" title="踩坑"></a>踩坑</h1><p>用XappDebug结合jadx动态调试会和算法助手发生冲突，在jadx debug的时候，算法助手hook的内容会消失，并且貌似重启了手机才会变正常。</p>
+<p>MT管理器的Activity服务不要一直开着，跟完就关掉，否则在安装新包的时候，或者即使关掉了算法hook，导致修改无效。（反正就是有问题，重启了就好了，而且必须是在MT管理器Activity服务关闭的时候重启）</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>平平无奇的安卓实战，由萌新跃迁了一级成为菜鸡，而且这个app连签名校验都没。未来还需多多学习。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/android-reverse/" class="print-no-link">#android reverse</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android-reverse-去广告实战</div>
+      <div>http://example.com/2025/01/03/android-reverse-去广告/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Beitragsautor</div>
+          <div>zhattatey</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Veröffentlicht am</div>
+          <div>January 3, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Urheberrechtshinweis</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/30/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" title="2024年终总结">
+                        <span class="hidden-mobile">2024年终总结</span>
+                        <span class="visible-mobile">Nächster</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Inhaltsverzeichnis</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Stichwort</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog funktioniert am besten mit aktiviertem JavaScript</div>
+  </noscript>
+</body>
+</html>

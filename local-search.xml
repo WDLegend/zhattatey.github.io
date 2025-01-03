@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>Android-reverse-去广告实战</title>
+    <link href="/2025/01/03/android-reverse-%E5%8E%BB%E5%B9%BF%E5%91%8A/"/>
+    <url>/2025/01/03/android-reverse-%E5%8E%BB%E5%B9%BF%E5%91%8A/</url>
+    
+    <content type="html"><![CDATA[<p>新年新气象，年末就有思考，不太想局限于web了，学点新东西吧。正好对安卓逆向一直都有点兴趣，立一个学成的小目标，可以破解某境外诈骗软件&#x2F;色情直播软件并拿下对方服务器后台&#x2F;shell，回归最初学习安全的初心（还是搞破坏有意思）。</p><p>教程看的 <a href="https://www.bilibili.com/video/BV1zk4y137Bn%EF%BC%8C%E6%84%9F%E8%A7%89%E8%B4%A8%E9%87%8F%E5%BE%88%E5%A5%BD%E3%80%82">https://www.bilibili.com/video/BV1zk4y137Bn，感觉质量很好。</a></p><p>网上随便找一个app，紫色视频。但是这玩意貌似有很多版本，比如我下的包名有麻豆视频：</p><p><img src="/../AndroidReverseRemoveAD/image-20250103195625557.png" alt="image-20250103195625557"></p><h1 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h1><p>打开MT管理器，打开Activity记录。</p><p>打开后要观看广告，记录如下：</p><p><img src="/../AndroidReverseRemoveAD/image-20250103200453438.png" alt="image-20250103200453438"></p><p>最后一共看了两次广告。</p><p>可以看到用了百度的SDK，去MainActivity看看。jadx打开apk：</p><p><img src="/../AndroidReverseRemoveAD/image-20250103200608045.png" alt="image-20250103200608045"></p><p>LoadAdBaiduBidding封装了调用百度SDK的逻辑，没啥看的。这个函数是void类型，可以直接在开头添加return-void。或者在onCreate方法里把那行注释掉即可。</p><p>这里为了方便选第一种。</p><p><img src="/../AndroidReverseRemoveAD/image-20250103200841823.png" alt="image-20250103200841823"></p><p>打开SplashActivity看看：</p><p><img src="/../AndroidReverseRemoveAD/image-20250103200858642.png" alt="image-20250103200858642"></p><p>显然也调用了，这符合之前的看了两次广告的效果，</p><p>NP管理器提取安装包，Dex编辑class文件：</p><p><img src="/../AndroidReverseRemoveAD/image-20250103201049170.png" alt="image-20250103201049170"></p><p>全局搜索下刚刚提到的，修改好后，保存后，再复制方法签名一下</p><p>打开算法助手，选中紫电视频：</p><p><img src="/../AndroidReverseRemoveAD/image-20250103201203636.png" alt="image-20250103201203636"></p><p>点开后拉到最下面，添加自定义Hook，由于刚刚复制了方法签名，按确定即可，然后启动自定义hook。</p><p>重启紫电视频，发现广告消失了，点进去一看，怪不得包名里有麻豆。。。</p><p><img src="/../AndroidReverseRemoveAD/image-20250103201330869.png" alt="image-20250103201330869"></p><p>明显这是个盗版紫电视频，逆天的还不在此。</p><p>随便点击任何按钮，都会跳出这个页面：</p><p><img src="/../AndroidReverseRemoveAD/image-20250103201436180.png" alt="image-20250103201436180"></p><p>每次解锁都要看广告，由于我们hook掉了广告，点击提示暂时没有广告。</p><p>在jadx里搜一下“暂时没有广告”：</p><p><img src="/../AndroidReverseRemoveAD/image-20250103201619618.png" alt="image-20250103201619618"></p><p>这个方法是showAd方法，按x看被谁调用了：</p><p><img src="/../AndroidReverseRemoveAD/image-20250103201715642.png" alt="image-20250103201715642"></p><p>这里有个判断，根据MainFragment.this.count的值设置button。我在hook之前测试了，点击那个立即解锁按钮，一共还要看三次广告才可以解锁，这就对应上了之前的逻辑。</p><p><img src="/../AndroidReverseRemoveAD/image-20250103201857952.png" alt="image-20250103201857952"></p><p>继续往上跟，发现这里count有判断，不为0就会到showReward。</p><p>再往上跟发现他给所有按钮都设置了一个AdListener，然后每次点击必然会走到这里。</p><p>所以此处修改this.count始终为0即可。</p><p>打开np管理器，打开安装包，定位到对应的smali代码行，在函数开头添加：</p><p>const&#x2F;4 p1, 0</p><p>iput p1, p0, Lcom&#x2F;hb&#x2F;madouvideo&#x2F;MainFragment;-&gt;count:I</p><p>重新hook后打开，点击立即解锁。</p><p><img src="/../AndroidReverseRemoveAD/image-20250103203142215.png" alt="image-20250103203142215"></p><p>然后最终来到这个页面，what？我卸载后重装了原来没改过的，老老实实看了10分钟广告，最后也是来到这个页面，说明这个几把软件啥功能都没实现，就是让你看广告，然后来到另一个app的下载。。。</p><p>而且以后每次打开这个软件，都只有这个页面了。如果点取消，就会直接白屏。我也是难绷了。</p><h1 id="踩坑"><a href="#踩坑" class="headerlink" title="踩坑"></a>踩坑</h1><p>用XappDebug结合jadx动态调试会和算法助手发生冲突，在jadx debug的时候，算法助手hook的内容会消失，并且貌似重启了手机才会变正常。</p><p>MT管理器的Activity服务不要一直开着，跟完就关掉，否则在安装新包的时候，或者即使关掉了算法hook，导致修改无效。（反正就是有问题，重启了就好了，而且必须是在MT管理器Activity服务关闭的时候重启）</p><h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>平平无奇的安卓实战，由萌新跃迁了一级成为菜鸡，而且这个app连签名校验都没。未来还需多多学习。</p>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>android reverse</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>2024年终总结</title>
     <link href="/2024/12/30/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/"/>
     <url>/2024/12/30/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</url>
