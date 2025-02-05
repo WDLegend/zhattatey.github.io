@@ -1,0 +1,681 @@
+
+
+<!DOCTYPE html>
+<html lang="zh" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="zhattatey">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="hook ， 抓包，调试和反调试等安卓逆向基础知识都学了，刚准备成就一番事业，出门遇到大boss 360加固，要么就是梆梆加固企业版，打开app就是网络错误，或闪退或连不上网，源码是看不到的，frida一启动就是process terminated，根本无从下手，深感无力，感觉还是功力尚浅，故欲深究加壳和脱壳。 简要原理和过程主流是写一个代理Application，加载so文件，so里面写dex文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="脱壳入门">
+<meta property="og:url" content="http://example.com/2025/02/05/%E8%84%B1%E5%A3%B3%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="zhattatey&#39;s blog">
+<meta property="og:description" content="hook ， 抓包，调试和反调试等安卓逆向基础知识都学了，刚准备成就一番事业，出门遇到大boss 360加固，要么就是梆梆加固企业版，打开app就是网络错误，或闪退或连不上网，源码是看不到的，frida一启动就是process terminated，根本无从下手，深感无力，感觉还是功力尚浅，故欲深究加壳和脱壳。 简要原理和过程主流是写一个代理Application，加载so文件，so里面写dex文">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205174421050.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205174436101.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205175652330.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205181410649.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205181718691.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205182030276.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205184720794.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205184807830.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205194643722.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205194903640.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205195144404.png">
+<meta property="og:image" content="http://example.com/unpack_play/image-20250205195218166.png">
+<meta property="article:published_time" content="2025-02-05T12:08:13.000Z">
+<meta property="article:modified_time" content="2025-02-05T12:10:29.833Z">
+<meta property="article:author" content="zhattatey">
+<meta property="article:tag" content="androidReverse">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/unpack_play/image-20250205174421050.png">
+  
+  
+  
+  <title>脱壳入门 - zhattatey&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Startseite</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archiv</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Kategorien</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Schlagwörter</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>Über</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="脱壳入门"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-05 20:08" pubdate>
+          February 5, 2025 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.3k wörter
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          11 minuten
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">脱壳入门</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>hook ， 抓包，调试和反调试等安卓逆向基础知识都学了，刚准备成就一番事业，出门遇到大boss 360加固，要么就是梆梆加固企业版，打开app就是网络错误，或闪退或连不上网，源码是看不到的，frida一启动就是process terminated，根本无从下手，深感无力，感觉还是功力尚浅，故欲深究加壳和脱壳。</p>
+<h1 id="简要原理和过程"><a href="#简要原理和过程" class="headerlink" title="简要原理和过程"></a>简要原理和过程</h1><p>主流是写一个代理Application，加载so文件，so里面写dex文件的解密逻辑，再用DexClassLoader加载解密后的dex文件。</p>
+<p>要懂一点双亲委派机制，Dex文件结构等知识，具体就不多写了，可以见：[<a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-273293.htm">原创]Android漏洞之战（11）——整体加壳原理和脱壳技巧详解-Android安全-看雪-安全社区|安全招聘|kanxue.com</a> 以及这篇文章里的提到的其他链接</p>
+<p>例如梆梆加固免费版，这里我用的apk是吾爱破解论坛安卓逆向这档事的demo，梆梆加固注册个账号，把apk传上去加固下再下下来就行，jadx打开</p>
+<p><img src="/../unpack_play/image-20250205174421050.png" srcset="/img/loading.gif" lazyload alt="image-20250205174421050"></p>
+<p><img src="/../unpack_play/image-20250205174436101.png" srcset="/img/loading.gif" lazyload alt="image-20250205174436101"></p>
+<p>尝试IDA打开，函数名基本都是没啥规律的，点开也是JUMP_OUT(地址)，要么是一堆LABEL混淆过的，看不明白。</p>
+<p>咋办呢，那就从内存里下手呗。例如frida-dexdump。</p>
+<p>原理是这样的，&#x2F;proc&#x2F;&lt;pid&gt;&#x2F;maps放了这个进程分配的所有内存块索引，然后在这些内存块里寻找dex文件特征的部分，如果能匹配到就dump到文件里。</p>
+<p>梆梆加固免费版会有frida的检测，可以用frida魔改版server：<a target="_blank" rel="noopener" href="https://github.com/Ylarod/Florida/releases/tag/16.6.6">Release 16.6.6 · Ylarod&#x2F;Florida</a></p>
+<p>大致的魔改原理可以见：<a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1921073-1-1.html">《安卓逆向这档事》十八、表哥，你也不想你的Frida被检测吧!(上) - 吾爱破解 - 52pojie.cn</a></p>
+<p>究其根源还是要看frida的源码，看看可能会有什么特征。如果未来遇到魔改server也不起作用的话，还要深入研究一下这块。</p>
+<p><code>frida-dexdump -U -f com.zj.wuaipojie</code></p>
+<p>拿到20个dex文件，jadx打开：</p>
+<p><img src="/../unpack_play/image-20250205175652330.png" srcset="/img/loading.gif" lazyload alt="image-20250205175652330"></p>
+<p>可以看到成功脱壳。</p>
+<h1 id="frida-dexdump脚本原理"><a href="#frida-dexdump脚本原理" class="headerlink" title="frida-dexdump脚本原理"></a>frida-dexdump脚本原理</h1><p><a target="_blank" rel="noopener" href="https://github.com/hluwa/frida-dexdump/blob/master/agent/src/index.ts">frida-dexdump&#x2F;agent&#x2F;src&#x2F;index.ts at master · hluwa&#x2F;frida-dexdump</a></p>
+<p>这里只写关键函数，主要看searchDex，分为普通搜索和深度搜索，先看普通的：</p>
+<p><img src="/../unpack_play/image-20250205181410649.png" srcset="/img/loading.gif" lazyload alt="image-20250205181410649"></p>
+<p>先检查文件头特征”64 65 78 0a 30….”，假如有的话，先检测路径是否为&#x2F;data&#x2F;dalvik-cache或&#x2F;system,如果是的话直接return（系统的dex），然后调用verify函数验证。</p>
+<p><img src="/../unpack_play/image-20250205181718691.png" srcset="/img/loading.gif" lazyload alt="image-20250205181718691"></p>
+<p>先看0x70是否比这块内存大（0x70是dex文件头大小，如果都没这个大，那这块肯定不是dex文件），然后根据maps来判断，关键在verify_by_maps方法。</p>
+<p><img src="/../unpack_play/image-20250205182030276.png" srcset="/img/loading.gif" lazyload alt="image-20250205182030276"></p>
+<p><code>0x34</code> 是 <strong>DEX 文件头（Dex Header）中的 <code>map_off</code> 偏移量</strong>，用于获取 <code>map_list</code> 的地址，然后遍历。</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">DexMapList</span> &#123;<br>    <span class="hljs-type">uint32_t</span>  size;   <span class="hljs-comment">// 记录 `DexMapItem` 的数量</span><br>    DexMapItem list[size]; <span class="hljs-comment">// MapItem 列表</span><br>&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">DexMapItem</span> &#123;<br>    <span class="hljs-type">uint16_t</span> type;    <span class="hljs-comment">// **数据类型**（4096 表示 `TYPE_MAP_LIST`）</span><br>    <span class="hljs-type">uint16_t</span> unused;<br>    <span class="hljs-type">uint32_t</span> size;    <span class="hljs-comment">// 该数据项的数量</span><br>    <span class="hljs-type">uint32_t</span> offset;  <span class="hljs-comment">// 该数据项的偏移量</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>遍历的是DexMapItem结构，每个大小为0xC，然后判断类型是否为”TYPE_MAP_LIST”。也就是item_type &#x3D;&#x3D;&#x3D; 4096这一行。这个类型里的offset表示map_list本身的偏移地址。</p>
+<p>所以把之前获取的和TYPE_MAP_LIST里的对比下就能判断是否为完整DEX文件了。</p>
+<p><img src="/../unpack_play/image-20250205184720794.png" srcset="/img/loading.gif" lazyload alt="image-20250205184720794"></p>
+<p>deepsearch部分，检测70 00 00 00</p>
+<p>在 DEX 文件头（Header）中，**偏移 <code>0x0C</code> 处存储了 <code>header_size</code>**，它表示 <strong>DEX 头部的大小</strong>，永远是0x70 (112)</p>
+<p>并且还考虑了magic字段被抹去的情况<code>dex_base.readCString(4) != &quot;dex\n&quot;</code>，还多了一个verify_ids_off</p>
+<p><img src="/../unpack_play/image-20250205184807830.png" srcset="/img/loading.gif" lazyload alt="image-20250205184807830"></p>
+<p>这里是dex文件里各种重要字段的偏移，要比dex文件本身小，比文件头大(0x70)</p>
+<p>剩下的就不写了。</p>
+<h1 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h1><p>假如打乱了内存里dex文件的内容，这该怎么办？frida-dexdump肯定就没辙了。在App的启动流程里，DexFile数据结构是一个重要的角色，不管怎么加密解密，随便折腾，最后都要经过这个数据结构。所以hook dexfile相关的函数，也可以实现脱壳。</p>
+<p>ida打开libart.so,看雪里的文章中挑选的是这个函数。</p>
+<p><img src="/../unpack_play/image-20250205194643722.png" srcset="/img/loading.gif" lazyload alt="image-20250205194643722"></p>
+<p>第一个参数就是Dexfile，ida应该是自动处理了？得找到原来的名字。</p>
+<p><img src="/../unpack_play/image-20250205194903640.png" srcset="/img/loading.gif" lazyload alt="image-20250205194903640"></p>
+<p>鼠标放上面，按X查看引用下，然后copy出来即可。</p>
+<p>frida脚本：</p>
+<figure class="highlight qml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs qml"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hook</span>(<span class="hljs-params"></span>) </span>&#123;<br>    <span class="hljs-keyword">var</span> libartModule = Process.getModuleByName(<span class="hljs-string">&quot;libart.so&quot;</span>);  <span class="hljs-comment">// 获取 libart.so 模块</span><br>    <span class="hljs-keyword">var</span> hookName = <span class="hljs-string">&quot;_ZN3art11ClassLinker10SetupClassERKNS_7DexFileERKNS_3dex8ClassDefENS_6HandleINS_6mirror5ClassEEENS_6ObjPtrINS9_11ClassLoaderEEE&quot;</span>;  <span class="hljs-comment">// 要查找的函数名</span><br><br>    <span class="hljs-comment">// 遍历模块的符号（包括导出的函数和变量）</span><br>    <span class="hljs-keyword">var</span> addr = libartModule.getExportByName(hookName)<br>    <span class="hljs-keyword">if</span>(addr != <span class="hljs-literal">null</span>) &#123;<br>        Interceptor.attach(addr, &#123;<br>            <span class="hljs-attribute">onEnter</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">args</span>) </span>&#123;<br>                <span class="hljs-keyword">var</span> dexFileAddr = args[<span class="hljs-number">1</span>]<br>                <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;dexFileAddr:&quot;</span> + dexFileAddr)<br>                <span class="hljs-keyword">var</span> begin = ptr(dexFileAddr).add(Process.pointerSize).readPointer()<br>                <span class="hljs-keyword">var</span> <span class="hljs-built_in">size</span> = ptr(dexFileAddr).add(Process.pointerSize * <span class="hljs-number">2</span>).readU32()<br>                save(begin, <span class="hljs-built_in">size</span>)<br>            &#125;<br>        &#125;)<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">save</span>(<span class="hljs-params">begin, size</span>) </span>&#123;<br>    <span class="hljs-keyword">var</span> path = <span class="hljs-string">&#x27;/storage/emulated/0/Download/&#x27;</span>+<span class="hljs-built_in">size</span>+<span class="hljs-string">&#x27;.dex&#x27;</span><br>    <span class="hljs-keyword">var</span> file = <span class="hljs-keyword">new</span> File(path, <span class="hljs-string">&#x27;wb&#x27;</span>)<br>    file.write(ptr(begin).readByteArray(<span class="hljs-built_in">size</span>))<br>    file.flush()<br>    file.close()<br>    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;dump success!&quot;</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">main</span>(<span class="hljs-params"></span>) </span>&#123;<br>    hook()<br>&#125;<br><br>setImmediate(main)<br><br></code></pre></td></tr></table></figure>
+
+<p><code>frida -f -U com.zj.wuaipojie -l unpack.js</code></p>
+<p>运行成功后pull出来</p>
+<p><img src="/../unpack_play/image-20250205195144404.png" srcset="/img/loading.gif" lazyload alt="image-20250205195144404"></p>
+<p>成功拿到源码！</p>
+<p><img src="/../unpack_play/image-20250205195218166.png" srcset="/img/loading.gif" lazyload alt="image-20250205195218166"></p>
+<h1 id="思考总结"><a href="#思考总结" class="headerlink" title="思考总结"></a>思考总结</h1><p>假如，假如说，直接重写DexFile的加载，这该怎么办？也看了一些其他文章，说目前最新的技术是啥vmp保护。总之要走的路还很长，慢慢学吧。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/androidReverse/" class="print-no-link">#androidReverse</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>脱壳入门</div>
+      <div>http://example.com/2025/02/05/脱壳入门/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Beitragsautor</div>
+          <div>zhattatey</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Veröffentlicht am</div>
+          <div>February 5, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Urheberrechtshinweis</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/03/android-reverse-%E5%8E%BB%E5%B9%BF%E5%91%8A/" title="Android-reverse-去广告实战">
+                        <span class="hidden-mobile">Android-reverse-去广告实战</span>
+                        <span class="visible-mobile">Nächster</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Inhaltsverzeichnis</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Stichwort</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog funktioniert am besten mit aktiviertem JavaScript</div>
+  </noscript>
+</body>
+</html>
