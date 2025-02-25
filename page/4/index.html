@@ -106,7 +106,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/" target="_self">
                 <i class="iconfont icon-home-fill"></i>
-                <span>Startseite</span>
+                <span>Hejmpaĝo</span>
               </a>
             </li>
           
@@ -118,7 +118,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/archives/" target="_self">
                 <i class="iconfont icon-archive-fill"></i>
-                <span>Archiv</span>
+                <span>Arkivoj</span>
               </a>
             </li>
           
@@ -130,7 +130,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/categories/" target="_self">
                 <i class="iconfont icon-category-fill"></i>
-                <span>Kategorien</span>
+                <span>Kategorio</span>
               </a>
             </li>
           
@@ -142,7 +142,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/tags/" target="_self">
                 <i class="iconfont icon-tags-fill"></i>
-                <span>Schlagwörter</span>
+                <span>Etikedoj</span>
               </a>
             </li>
           
@@ -154,7 +154,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/about/" target="_self">
                 <i class="iconfont icon-user-fill"></i>
-                <span>Über</span>
+                <span>Pri</span>
               </a>
             </li>
           
@@ -219,86 +219,6 @@
               <div class="col-12 col-md-10 m-auto">
                 
 
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/01/19/%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81-%E5%9F%9F%E5%90%8E%E9%97%A8/" target="_self">
-          权限维持-域后门
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/01/19/%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81-%E5%9F%9F%E5%90%8E%E9%97%A8/" target="_self">
-        <div>
-          拿到域控后，需要一些技术来保持权限维持，接下来介绍常见的域控技术。 1：创建Skeleton域后门安装Skeleton Key后，所有域账户都可以使用一个相同的密码进行认证，同时原有密码仍然有效。该技术通过注入lsass。exe进程实现，创建的Skeleton Key保存在内存中，如果域控重启，那么其将会失效。 利用条件：域管理员 利用工具：mimikatz。 mimikatz.exeprivil
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-01-19 21:40" pubdate>
-              2024-01-19
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Red-Team/">#Red Team</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/01/19/%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81-%E7%B3%BB%E7%BB%9F%E5%90%8E%E9%97%A8/" target="_self">
-          权限维持-系统后门
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/01/19/%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81-%E7%B3%BB%E7%BB%9F%E5%90%8E%E9%97%A8/" target="_self">
-        <div>
-          权限维持，作为红队行动中的重要组成部分，在此篇笔记进行学习。实验环境为windows server 2012 ，未安装任何软硬件。vmware workstation 17 1：创建影子账户隐藏的账户，无论通过计算机管理，还是命令行查询，都无法看到，只能在注册表看到其信息。 条件：拥有管理员权限 利用：net user shadow$ Hacker@123 &#x2F;add此时初步拥有了一个隐藏
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-01-19 21:40" pubdate>
-              2024-01-19
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Red-Team/">#Red Team</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
 
   <div class="row mx-auto index-card">
     
@@ -534,7 +454,7 @@
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
+        <h4 class="modal-title w-100 font-weight-bold">Serĉi</h4>
         <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -542,7 +462,7 @@
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">Stichwort</label>
+          <label data-error="x" data-success="v" for="local-search-input">ŝlosivorto</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
@@ -628,7 +548,7 @@
   
 
   <noscript>
-    <div class="noscript-warning">Blog funktioniert am besten mit aktiviertem JavaScript</div>
+    <div class="noscript-warning">Blogo funkcias plej bone kun JavaScript ebligita</div>
   </noscript>
 </body>
 </html>
